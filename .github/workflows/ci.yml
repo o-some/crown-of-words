@@ -53,3 +53,5 @@ jobs:
         run: npm run test:host
       - name: Production build
         run: npm run build
+      - name: Release bundle gate
+        run: npm run check:release
