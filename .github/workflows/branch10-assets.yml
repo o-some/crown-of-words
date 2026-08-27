@@ -1,5 +1,5 @@
 name: Branch 10 Asset Import
-# public Tula runtime worlds + verified Dropbox boss originals
+# isolate public worlds and Vargas raw transfer
 on:
   push:
     branches: [branch-10-regions-5-8]
@@ -11,33 +11,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch verified originals
-        shell: bash
+      - name: Fetch public canonical worlds
         run: |
           set -euo pipefail
           mkdir -p public/assets/worlds public/assets/bosses docs
           BASE='https://raw.githubusercontent.com/o-some/tulasisland/cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0/assets/creative'
-          curl --fail --location --silent --show-error "$BASE/world_coral_reef.webp" -o public/assets/worlds/world-coral-reef.webp
-          curl --fail --location --silent --show-error "$BASE/world_crystal_cove.webp" -o public/assets/worlds/world-crystal-cove.webp
-          curl --fail --location --silent --show-error "$BASE/world_desert_oasis.webp" -o public/assets/worlds/world-desert-oasis.webp
-          curl --fail --location --silent --show-error "$BASE/world_ice_peak.webp" -o public/assets/worlds/world-ice-peak.webp
-          curl --fail --location --silent --show-error 'https://www.dropbox.com/pri/get/%5BLinguaTurtle%5D/%5BEndbosse%5D/Tulas_Island_10_Original_Bosse_Einzeln_v2/%5BFreigestellt%5D/Level%205%20-%20Piratenbaron%20Vargas.png?_subject_uid=2152286515&w=AADdP5uK7N4mq2muIdutAiJklAEVf2s7JC1atXjoQuRODg' -o public/assets/bosses/boss-05-vargas.png
-          curl --fail --location --silent --show-error 'https://www.dropbox.com/pri/get/%5BLinguaTurtle%5D/%5BEndbosse%5D/Tulas_Island_10_Original_Bosse_Einzeln_v2/%5BFreigestellt%5D/Level%206%20-%20Kapit%C3%A4n%20Ironhook.png?_subject_uid=2152286515&w=AAC67dBRorlcDGZv62L_j40t-gYkSzVNlYeaxyuDX_qjOQ' -o public/assets/bosses/boss-06-ironhook.png
-          curl --fail --location --silent --show-error 'https://www.dropbox.com/pri/get/%5BLinguaTurtle%5D/%5BEndbosse%5D/Tulas_Island_10_Original_Bosse_Einzeln_v2/%5BFreigestellt%5D/Level%207%20-%20Admiral%20Thorne.png?_subject_uid=2152286515&w=AAD_kV1sgkVZS2UpzrhLI9ypYMt0t3hQcBdMU9KW4BGVOA' -o public/assets/bosses/boss-07-thorne.png
-          curl --fail --location --silent --show-error 'https://www.dropbox.com/pri/get/%5BLinguaTurtle%5D/%5BEndbosse%5D/Tulas_Island_10_Original_Bosse_Einzeln_v2/%5BFreigestellt%5D/Level%208%20-%20Kartenmeister%20Corvin.png?_subject_uid=2152286515&w=AADnFs54A0TT7nuVkRlEt4VmZHcmpWM2VXf58Qvyv0jkCQ' -o public/assets/bosses/boss-08-corvin.png
+          curl -fL "$BASE/world_coral_reef.webp" -o public/assets/worlds/world-coral-reef.webp
+          curl -fL "$BASE/world_crystal_cove.webp" -o public/assets/worlds/world-crystal-cove.webp
+          curl -fL "$BASE/world_desert_oasis.webp" -o public/assets/worlds/world-desert-oasis.webp
+          curl -fL "$BASE/world_ice_peak.webp" -o public/assets/worlds/world-ice-peak.webp
           test "$(stat -c%s public/assets/worlds/world-coral-reef.webp)" = 473394
           test "$(stat -c%s public/assets/worlds/world-crystal-cove.webp)" = 370588
           test "$(stat -c%s public/assets/worlds/world-desert-oasis.webp)" = 386840
           test "$(stat -c%s public/assets/worlds/world-ice-peak.webp)" = 378706
-          test "$(stat -c%s public/assets/bosses/boss-05-vargas.png)" = 750585
-          test "$(stat -c%s public/assets/bosses/boss-06-ironhook.png)" = 695047
-          test "$(stat -c%s public/assets/bosses/boss-07-thorne.png)" = 799654
-          test "$(stat -c%s public/assets/bosses/boss-08-corvin.png)" = 642845
-          sha256sum public/assets/worlds/world-coral-reef.webp public/assets/worlds/world-crystal-cove.webp public/assets/worlds/world-desert-oasis.webp public/assets/worlds/world-ice-peak.webp public/assets/bosses/boss-05-vargas.png public/assets/bosses/boss-06-ironhook.png public/assets/bosses/boss-07-thorne.png public/assets/bosses/boss-08-corvin.png > docs/BRANCH_10_ASSET_SHA256.txt
-      - name: Commit imported assets
+      - name: Fetch Vargas original in raw mode
         run: |
+          set -euo pipefail
+          curl -fL 'https://www.dropbox.com/pri/get/%5BLinguaTurtle%5D/%5BEndbosse%5D/Tulas_Island_10_Original_Bosse_Einzeln_v2/%5BFreigestellt%5D/Level%205%20-%20Piratenbaron%20Vargas.png?_subject_uid=2152286515&w=AADdP5uK7N4mq2muIdutAiJklAEVf2s7JC1atXjoQuRODg&raw=1' -o public/assets/bosses/boss-05-vargas.png
+          file public/assets/bosses/boss-05-vargas.png
+          stat -c%s public/assets/bosses/boss-05-vargas.png
+          test "$(stat -c%s public/assets/bosses/boss-05-vargas.png)" = 750585
+      - name: Commit verified partial import
+        run: |
+          sha256sum public/assets/worlds/*.webp public/assets/bosses/boss-05-vargas.png > docs/BRANCH_10_ASSET_SHA256.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/assets/worlds public/assets/bosses docs/BRANCH_10_ASSET_SHA256.txt
-          git commit -m 'assets: import verified regions 5-8 originals'
+          git add public/assets/worlds public/assets/bosses/boss-05-vargas.png docs/BRANCH_10_ASSET_SHA256.txt
+          git commit -m 'assets: import verified Branch 10 worlds and Vargas'
           git push
