@@ -14,25 +14,28 @@ test('hand supports at most four unique cards', () => {
   assert.throws(() => createCardHand([...cards, cards[0]]));
 });
 
-test('correct language resolution plays selected card exactly once', () => {
+test('correct language resolution plays selected card exactly once and spends cost', () => {
   let hand = selectCard(createCardHand(cards), 'a');
   const resolved = resolveSelectedCard(hand, { correct: true });
   hand = resolved.state;
   assert.equal(resolved.outcome.type, 'played');
   assert.equal(hand.cards[0].status, 'played');
+  assert.equal(hand.spentCost, 1);
   assert.equal(deriveCardBonuses(hand).tacticPower, 1);
   assert.equal(resolveSelectedCard(hand, { correct: true }).outcome, null);
 });
 
-test('wrong answer uses explorer refund once, then exhausts', () => {
+test('wrong answer uses explorer refund once, keeps cost spent, then exhausts', () => {
   let hand = selectCard(createCardHand(cards), 'a');
   let resolved = resolveSelectedCard(hand, { correct: false });
   assert.equal(resolved.outcome.type, 'refunded');
   assert.equal(resolved.state.cards[0].status, 'ready');
+  assert.equal(resolved.state.spentCost, 1);
   hand = selectCard(resolved.state, 'a');
   resolved = resolveSelectedCard(hand, { correct: false });
   assert.equal(resolved.outcome.type, 'exhausted');
   assert.equal(resolved.state.cards[0].status, 'exhausted');
+  assert.equal(resolved.state.spentCost, 2);
 });
 
 test('tactical bonuses remain capped and never contain answer data', () => {
