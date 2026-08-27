@@ -16,7 +16,7 @@ export function answerFinale(session,answer){
   if(correct){next.wordPower+=3;next.solved+=1;}
   if(next.phase==='standard')next.index+=1;
   else{
-    next.bossIndex+=1;
+    if(next.regionId!=='crown-castle'||correct)next.bossIndex+=1;
     if(correct)next.bossHp=Math.max(0,next.bossHp-1);
     if(next.regionId==='harbor')next.bossMechanic=resolveAzrak(next.bossMechanic,{mixedCorrect:Boolean(challenge.counter&&correct)});
     else next.bossMechanic=resolveVarkosPhase(next.bossMechanic,{correct,crownCorrect:Boolean(challenge.phase===4&&correct)});
