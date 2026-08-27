@@ -1,0 +1,50 @@
+name: Finalize Crown of Words master spec
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/finalize-crown-spec.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct and verify full master spec
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .crown-spec-transfer/part00.b64 \
+              .crown-spec-transfer/part01.b64 \
+              .crown-spec-transfer/part02.b64 \
+              .crown-spec-transfer/part03.b64 \
+              .crown-spec-transfer/part04.b64 > /tmp/crown-spec.xz.b64
+          base64 --decode /tmp/crown-spec.xz.b64 > /tmp/crown-spec.xz
+          xz --decompress --stdout /tmp/crown-spec.xz > TULAS_ISLAND_CROWN_OF_WORDS_MASTER_SPEC_2026-08-27.md
+          test "$(wc -c < TULAS_ISLAND_CROWN_OF_WORDS_MASTER_SPEC_2026-08-27.md)" -eq 86799
+          echo "c0f3d9b108082c499f8e69f2843f62f665a2d92c4bec1c46c4a52846c843660e  TULAS_ISLAND_CROWN_OF_WORDS_MASTER_SPEC_2026-08-27.md" | sha256sum --check --strict
+
+      - name: Remove one-time transfer files
+        shell: bash
+        run: |
+          rm -rf .crown-spec-transfer
+          rm -f .github/workflows/finalize-crown-spec.yml
+
+      - name: Commit verified master spec
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs: install verified full Crown of Words master spec"
+          git push origin HEAD:main
