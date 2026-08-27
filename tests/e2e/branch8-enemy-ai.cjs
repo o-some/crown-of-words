@@ -13,6 +13,8 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+const normalized = (value) => String(value).toLocaleLowerCase('de-DE');
+
 async function assertNoOverflow(page, label) {
   const metrics = await page.evaluate(() => ({ width: innerWidth, html: document.documentElement.scrollWidth, body: document.body.scrollWidth }));
   assert(metrics.html <= metrics.width + 1, `${label}: html overflow ${metrics.html}/${metrics.width}`);
@@ -58,7 +60,7 @@ async function run(browser, viewport) {
   assert(await gardenIntent.count() === 1, `${viewport.name}: enemy intent missing before mission`);
   let intentText = await gardenIntent.innerText();
   assert(intentText.includes('Niko'), `${viewport.name}: Niko not identified`);
-  assert(intentText.includes('Sichtbarer Intent'), `${viewport.name}: intent is not telegraphed`);
+  assert(normalized(intentText).includes('sichtbarer intent'), `${viewport.name}: intent is not telegraphed`);
   assert(intentText.includes('Versorgung') && intentText.includes('Verteidigung'), `${viewport.name}: supply/defense telemetry missing`);
   await assertNoOverflow(page, `${viewport.name}/garden-intent`);
   fs.mkdirSync('test-artifacts/branch8', { recursive: true });
@@ -67,7 +69,7 @@ async function run(browser, viewport) {
   await page.getByTestId('start-standard').click();
   await page.getByTestId('standard-challenge').waitFor();
   intentText = await page.getByTestId('enemy-intent').innerText();
-  assert(intentText.includes('Sichtbarer Intent'), `${viewport.name}: intent vanished in challenge`);
+  assert(normalized(intentText).includes('sichtbarer intent'), `${viewport.name}: intent vanished in challenge`);
 
   await clickAnswer(page, 'flower');
   await page.locator('[data-action="next-standard"]').click();
@@ -91,7 +93,7 @@ async function run(browser, viewport) {
   await page.getByTestId('resolve-enemy-turn').click();
   await page.getByTestId('standard-challenge').waitFor();
   const resolvedIntent = await page.getByTestId('enemy-intent').innerText();
-  assert(resolvedIntent.includes('Ausgeführt'), `${viewport.name}: resolved intent is not marked`);
+  assert(normalized(resolvedIntent).includes('ausgeführt'), `${viewport.name}: resolved intent is not marked`);
   const outcome = await page.locator('.enemy-outcome').innerText();
   assert(outcome.includes('ausgekundschaftet'), `${viewport.name}: Niko outcome missing`);
   assert(outcome.includes('Sprachaufgaben bleiben unverändert'), `${viewport.name}: language-truth promise missing`);
