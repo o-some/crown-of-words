@@ -5,7 +5,7 @@ import { GARDEN_BOSS_CHALLENGES, GARDEN_STANDARD_CHALLENGES } from './content/ga
 import { createSaveEnvelope, restoreSaveEnvelope } from './game/save-contract.js';
 import { clearStandaloneSave, loadStandaloneSave, saveStandaloneSave } from './adapters/standalone-storage.js';
 import { createCardHand, deriveCardBonuses, resolveSelectedCard, selectCard } from './game/card-core.js';
-import { HELPER_DEFINITIONS, applyHelperEvent, createHelperState, helperDefinition, selectHelper } from './game/helper-core.js';
+import { HELPER_DEFINITIONS, applyHelperEvent, createHelperState, selectHelper } from './game/helper-core.js';
 import { GARDEN_CARDS } from './content/garden-cards.js';
 
 const root = document.querySelector('#app');
