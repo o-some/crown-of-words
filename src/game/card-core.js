@@ -2,6 +2,7 @@ export const CARD_STATUSES = Object.freeze(['ready', 'played', 'exhausted']);
 
 export function createCardDefinition({ id, name, description, effect, cost = 1 }) {
   if (!id || !name || !effect?.type) throw new Error('invalid card definition');
+  if (!Number.isFinite(cost) || cost < 0) throw new Error('invalid card cost');
   return Object.freeze({ id, name, description: description ?? '', cost, effect: Object.freeze({ ...effect }) });
 }
 
@@ -13,6 +14,7 @@ export function createCardHand(definitions, { mode = 'explorer' } = {}) {
     mode,
     selectedId: null,
     explorerRefundAvailable: mode === 'explorer',
+    spentCost: 0,
     cards: definitions.map((definition) => ({ definition, status: 'ready' })),
     history: [],
   };
@@ -32,19 +34,20 @@ export function resolveSelectedCard(state, { correct }) {
   const card = next.cards.find((entry) => entry.definition.id === next.selectedId);
   if (!card || card.status !== 'ready') return { state, outcome: null };
 
+  next.spentCost = Number(next.spentCost ?? 0) + Number(card.definition.cost ?? 0);
   let outcome;
   if (correct) {
     card.status = 'played';
-    outcome = { type: 'played', cardId: card.definition.id, effect: card.definition.effect };
+    outcome = { type: 'played', cardId: card.definition.id, effect: card.definition.effect, spentCost: card.definition.cost };
   } else if (next.explorerRefundAvailable) {
     next.explorerRefundAvailable = false;
-    outcome = { type: 'refunded', cardId: card.definition.id, effect: null };
+    outcome = { type: 'refunded', cardId: card.definition.id, effect: null, spentCost: card.definition.cost };
   } else {
     card.status = 'exhausted';
-    outcome = { type: 'exhausted', cardId: card.definition.id, effect: null };
+    outcome = { type: 'exhausted', cardId: card.definition.id, effect: null, spentCost: card.definition.cost };
   }
 
-  next.history.push({ cardId: card.definition.id, correct: Boolean(correct), outcome: outcome.type });
+  next.history.push({ cardId: card.definition.id, correct: Boolean(correct), outcome: outcome.type, spentCost: outcome.spentCost });
   next.selectedId = null;
   return { state: next, outcome };
 }
