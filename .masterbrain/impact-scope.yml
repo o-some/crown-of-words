@@ -1,0 +1,37 @@
+task: "branch-1-contracts-scaffold"
+
+repository:
+  exact: "o-some/crown-of-words"
+  verify_main_before_write: true
+  baseline_sha: "afd757e19edce4af1592e6ac04abc46c6116e084"
+
+allowed:
+  - ".masterbrain/**"
+  - ".github/workflows/**"
+  - "AGENTS.md"
+  - "README.md"
+  - "index.html"
+  - "package.json"
+  - "vite.config.js"
+  - "src/main.js"
+  - "src/styles.css"
+
+protected:
+  - "TULAS_ISLAND_CROWN_OF_WORDS_MASTER_SPEC_2026-08-27.md"
+  - "docs/BRANCH_0_BASELINE_2026-08-27.md"
+  - "o-some/tulasisland"
+  - "o-some/word-scramble"
+  - "o-some/word-guardians"
+  - "o-some/pirate-pairs"
+  - "o-some/pirate-deck"
+  - "o-some/wordbound-battle"
+  - "Dropbox originals"
+
+rules:
+  direct_main_write: false
+  force_push: false
+  refactor_outside_scope: false
+  gameplay_implementation: false
+  asset_import: false
+  preserve_existing_spec: true
+  stop_after_branch: true

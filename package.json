@@ -1,0 +1,16 @@
+{
+  "name": "crown-of-words",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check:syntax": "node --check src/main.js",
+    "test": "npm run check:syntax && npm run build"
+  },
+  "devDependencies": {
+    "vite": "8.2.0"
+  }
+}

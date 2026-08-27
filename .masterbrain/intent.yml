@@ -1,0 +1,26 @@
+goal: >-
+  Build Crown of Words as a premium mobile-first Tula's Island territory-control
+  language-learning strategy game where learning actions determine tactical outcomes.
+
+must_do:
+  - "Reuse existing Tula's Island assets first"
+  - "Keep strategy and language learning inseparable"
+  - "Require a correct Crown Sentence for full territory capture"
+  - "Support mobile-first touch interaction and desktop fallback"
+  - "Keep game core isolated from host storage/economy providers"
+  - "Build the Garden / Pirat Kai vertical slice before broad content expansion"
+
+must_preserve:
+  - "Other Tula's Island repositories"
+  - "Dropbox originals"
+  - "Host wallet, progression, storage and content boundaries"
+
+must_not_do:
+  - "No direct writes to main during plan branches"
+  - "No force push"
+  - "No planets or generic world map"
+  - "No generic replacement sprites when approved real assets exist"
+  - "No gameplay implementation in Branch 1"
+  - "No direct localStorage or Supabase calls from game core"
+
+active_release_target: "Standalone web preview; host integration later"
