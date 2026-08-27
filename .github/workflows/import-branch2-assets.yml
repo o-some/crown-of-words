@@ -1,0 +1,61 @@
+name: Import Branch 2 Assets
+
+on:
+  push:
+    branches:
+      - branch-2-asset-registry
+    paths:
+      - '.github/workflows/import-branch2-assets.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Crown of Words
+        uses: actions/checkout@v4
+        with:
+          ref: branch-2-asset-registry
+          fetch-depth: 0
+
+      - name: Fetch pinned Tula's Island assets
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none --no-checkout https://github.com/o-some/tulasisland.git /tmp/tulasisland
+          git -C /tmp/tulasisland checkout cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0 -- \
+            assets/creative/map_turtle_island_overview.webp \
+            assets/creative/world_garden.webp \
+            assets/creative/tula_happy.webp \
+            assets/creative/reward_shell_gold.webp \
+            assets/creative/reward_shell_pearl.webp \
+            assets/creative/reward_star_xp.webp
+
+          mkdir -p public/assets/map public/assets/worlds public/assets/tula public/assets/rewards docs
+          cp /tmp/tulasisland/assets/creative/map_turtle_island_overview.webp public/assets/map/map-turtle-island-overview.webp
+          cp /tmp/tulasisland/assets/creative/world_garden.webp public/assets/worlds/world-garden.webp
+          cp /tmp/tulasisland/assets/creative/tula_happy.webp public/assets/tula/tula-happy.webp
+          cp /tmp/tulasisland/assets/creative/reward_shell_gold.webp public/assets/rewards/reward-shell-gold.webp
+          cp /tmp/tulasisland/assets/creative/reward_shell_pearl.webp public/assets/rewards/reward-shell-pearl.webp
+          cp /tmp/tulasisland/assets/creative/reward_star_xp.webp public/assets/rewards/reward-star-xp.webp
+
+          sha256sum \
+            public/assets/map/map-turtle-island-overview.webp \
+            public/assets/worlds/world-garden.webp \
+            public/assets/tula/tula-happy.webp \
+            public/assets/rewards/reward-shell-gold.webp \
+            public/assets/rewards/reward-shell-pearl.webp \
+            public/assets/rewards/reward-star-xp.webp \
+            > docs/BRANCH_2_ASSET_SHA256.txt
+
+      - name: Commit imported assets
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets docs/BRANCH_2_ASSET_SHA256.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'assets: import verified Branch 2 runtime assets'
+            git push origin HEAD:branch-2-asset-registry
+          fi
