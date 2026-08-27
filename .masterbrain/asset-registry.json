@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "project": "Tula's Island – Crown of Words",
+  "branch": "branch-2-asset-registry",
+  "sourceRepository": {
+    "repository": "o-some/tulasisland",
+    "commit": "cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0"
+  },
+  "rules": {
+    "runtimeDropboxHotlinks": false,
+    "existingAssetsFirst": true,
+    "placeholderWhenOriginalExists": false,
+    "verifySha256": true
+  },
+  "assets": [
+    {
+      "id": "map-tula-island-overview",
+      "kind": "campaign-map",
+      "status": "ready",
+      "runtimePath": "public/assets/map/map-turtle-island-overview.webp",
+      "sourceRepoPath": "assets/creative/map_turtle_island_overview.webp",
+      "sourceRepoBlob": "254416eb1c674b48a311cf7a623d8d75f3090add",
+      "dropboxPath": "/[LinguaTurtle]/03_Bilder_und_Design/02_Backgrounds/Web/Maps/map_turtle_island_overview.webp",
+      "dropboxContentHash": "477c1df1be5c2b1ea2c6ac35e0453170d487dbb54e7cd06a5edd96c08b0c81c6",
+      "size": 600444,
+      "sha256": "d251e39ca9355605f73576869f8c9f6d55ef8f021737e11626272630403fd8a4"
+    },
+    {
+      "id": "world-garden",
+      "kind": "region-background",
+      "status": "ready",
+      "runtimePath": "public/assets/worlds/world-garden.webp",
+      "sourceRepoPath": "assets/creative/world_garden.webp",
+      "sourceRepoBlob": "181c8e3774f0b150be9f99e67e93dab0c51cfa55",
+      "dropboxPath": "/[LinguaTurtle]/03_Bilder_und_Design/02_Backgrounds/Web/Worlds/world_garden.webp",
+      "dropboxContentHash": "5d67b5390a9a207a5f6bc2e1be609ab5224c92113311529e6a5c4e710f31d25a",
+      "size": 418490,
+      "sha256": "8338025554c7640a381dd1b22c67910211d6f62484bd83040eb3141f2758b788"
+    },
+    {
+      "id": "tula-happy",
+      "kind": "character",
+      "status": "ready",
+      "runtimePath": "public/assets/tula/tula-happy.webp",
+      "sourceRepoPath": "assets/creative/tula_happy.webp",
+      "sourceRepoBlob": "cd9ec4242fed35139d71d22bdf9ea979031c9702",
+      "dropboxPath": "/[LinguaTurtle]/03_Bilder_und_Design/01_Characters/Tula/Web/tula_happy.webp",
+      "dropboxContentHash": "a87001f615eb7b2626df4be120a5a6c1aa82ca00be69b1063c2cf40c3f4639a0",
+      "size": 181326,
+      "sha256": "f9bd480dc85a86e62423ceda724749cccca116c51321192753335aa825c9eb24"
+    },
+    {
+      "id": "reward-shell-gold",
+      "kind": "reward",
+      "status": "ready",
+      "runtimePath": "public/assets/rewards/reward-shell-gold.webp",
+      "sourceRepoPath": "assets/creative/reward_shell_gold.webp",
+      "sourceRepoBlob": "a8899de081070f27fb83539dd69e11b805fda762",
+      "dropboxPath": "/[LinguaTurtle]/03_Bilder_und_Design/04_UI_Assets/Web/Rewards/reward_shell_gold.webp",
+      "dropboxContentHash": "a585c3830c0f94d73090c12fba7694d164067562f3bbdb5de3c0908d19b99872",
+      "size": 157166,
+      "sha256": "8e7a14738abce923ec7175138a87e6b3b1bac08f59a7e7e1facbb9be337e04bb"
+    },
+    {
+      "id": "reward-shell-pearl",
+      "kind": "reward",
+      "status": "ready",
+      "runtimePath": "public/assets/rewards/reward-shell-pearl.webp",
+      "sourceRepoPath": "assets/creative/reward_shell_pearl.webp",
+      "sourceRepoBlob": "87fb44ef29643c201d3ecb87c38bb9fa95e368e4",
+      "dropboxPath": "/[LinguaTurtle]/03_Bilder_und_Design/04_UI_Assets/Web/Rewards/reward_shell_pearl.webp",
+      "dropboxContentHash": "af7bc6153be4ff2c221871423602afc874524fe00e618d2b2dbd2dd1dca9c2bc",
+      "size": 94030,
+      "sha256": "7c9d3433187a80d3fd68c276d7b90868dc072c529f4c645a459bbe60ffb73a13"
+    },
+    {
+      "id": "reward-star-xp",
+      "kind": "reward",
+      "status": "ready",
+      "runtimePath": "public/assets/rewards/reward-star-xp.webp",
+      "sourceRepoPath": "assets/creative/reward_star_xp.webp",
+      "sourceRepoBlob": "bc66d75f71b4a64e9d7254bf5fbe2d14df8c148a",
+      "dropboxPath": "/[LinguaTurtle]/03_Bilder_und_Design/04_UI_Assets/Web/Rewards/reward_star_xp.webp",
+      "size": 76022,
+      "sha256": "68185402f26d99a600c6d1ade518ceb3ec484d3665a02e9272a8f569d70803e6"
+    },
+    {
+      "id": "boss-01-pirat-kai",
+      "kind": "boss",
+      "status": "source-verified-runtime-pending",
+      "runtimePath": "public/assets/bosses/boss-01-pirat-kai.png",
+      "dropboxPath": "/[LinguaTurtle]/[Endbosse]/Tulas_Island_10_Original_Bosse_Einzeln_v2/[Freigestellt]/Level 1 - Pirat Kai.png",
+      "dropboxFileId": "id:tBVq8LNbZ_8AAAAAAAM3bQ",
+      "dropboxContentHash": "f95cce54828690c9e29bdf3f8af60877f35254761c281251c0f9bbba44f85d45",
+      "size": 655568,
+      "transparent": true,
+      "note": "Original source verified. Binary transfer intentionally deferred rather than persisting a short-lived Dropbox download token or substituting a non-original sprite. Must be resolved before the Garden/Kai vertical slice."
+    }
+  ]
+}
