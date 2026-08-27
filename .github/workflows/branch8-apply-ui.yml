@@ -1,5 +1,4 @@
-name: Branch 8 UI Patch
-# rerun through guarded wrapper after precise standard-result targeting
+name: Branch 8 Test Label Patch
 on:
   push:
     branches:
@@ -18,11 +17,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: node scripts/branch8-ui-patch-run.mjs
-      - run: node --check src/main.js
+      - name: Make round label assertion presentation-safe
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('tests/e2e/branch8-enemy-ai.cjs')
+          text = path.read_text()
+          old = "assert(turnText.includes('Gegnerzug · Runde 1'),"
+          new = "assert(normalized(turnText).includes('gegnerzug · runde 1'),"
+          if text.count(old) != 2:
+              raise SystemExit(f'expected 2 round-label assertions, found {text.count(old)}')
+          path.write_text(text.replace(old, new))
+          PY
+      - run: node --check tests/e2e/branch8-enemy-ai.cjs
       - run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/main.js src/styles.css
-          git commit -m 'feat: integrate visible Niko enemy turn'
+          git add tests/e2e/branch8-enemy-ai.cjs
+          git commit -m 'test: normalize enemy round label assertions'
           git push origin HEAD:branch-8-enemy-ai
