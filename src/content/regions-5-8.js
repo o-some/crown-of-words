@@ -1,7 +1,7 @@
 export const REGIONS_5_8 = Object.freeze({
   family: {
     id:'family', order:5, name:'Familie', bossId:'vargas', bossName:'Piratenbaron Vargas', enemyId:'yara',
-    worldAsset:'worlds/world-coral-reef.webp', bossAsset:'bosses/boss-05-vargas.png',
+    worldAsset:'worlds/world-coral-reef.webp', bossAsset:'bosses/boss-05-vargas.webp',
     focus:'Personen, Pronomen, Besitz und Beziehungen', strategicBonus:'Unterstützungsbonus',
     districts:['Anlegestelle','Familienplatz','Erzählwerkstatt','Familienturnier','Vargas’ Tiefenhof'],
     standard:[
@@ -19,7 +19,7 @@ export const REGIONS_5_8 = Object.freeze({
   },
   body: {
     id:'body', order:6, name:'Körper', bossId:'ironhook', bossName:'Kapitän Ironhook', enemyId:'taro',
-    worldAsset:'worlds/world-crystal-cove.webp', bossAsset:'bosses/boss-06-ironhook.png',
+    worldAsset:'worlds/world-crystal-cove.webp', bossAsset:'bosses/boss-06-ironhook.webp',
     focus:'Körper, Zustände, Bedürfnisse und Modalverben', strategicBonus:'Schutzschild',
     districts:['Anlegestelle','Heilstation','Körperwerkstatt','Kraftturnier','Ironhooks Kettenbucht'],
     standard:[
@@ -37,7 +37,7 @@ export const REGIONS_5_8 = Object.freeze({
   },
   travel: {
     id:'travel', order:7, name:'Unterwegs', bossId:'thorne', bossName:'Admiral Thorne', enemyId:'piko',
-    worldAsset:'worlds/world-desert-oasis.webp', bossAsset:'bosses/boss-07-thorne.png',
+    worldAsset:'worlds/world-desert-oasis.webp', bossAsset:'bosses/boss-07-thorne.webp',
     focus:'Reise, Richtungen, Fragen und Verkehr', strategicBonus:'Zusätzliche Seeroute',
     districts:['Anlegestelle','Wegweiser','Reisewerkstatt','Routenturnier','Thornes Admiralsposten'],
     standard:[
@@ -55,7 +55,7 @@ export const REGIONS_5_8 = Object.freeze({
   },
   movement: {
     id:'movement', order:8, name:'Bewegung', bossId:'corvin', bossName:'Kartenmeister Corvin', enemyId:'riven',
-    worldAsset:'worlds/world-ice-peak.webp', bossAsset:'bosses/boss-08-corvin.png',
+    worldAsset:'worlds/world-ice-peak.webp', bossAsset:'bosses/boss-08-corvin.webp',
     focus:'Verben, Zeitformen und Imperative', strategicBonus:'Manöver',
     districts:['Anlegestelle','Trainingsfeld','Manöverwerkstatt','Bewegungsturnier','Corvins Kartenkammer'],
     standard:[
