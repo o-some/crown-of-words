@@ -127,12 +127,14 @@ Crown darf weiterhin nicht:
 
 ## Cleanup
 
-Vor finaler Freigabe werden ausschließlich folgende temporäre Branch-12-Helfer entfernt:
+Der Branch ist bereinigt. Entfernt wurden:
 
 - `.github/workflows/branch12-integrate.yml`
 - `.github/workflows/branch12-host-regression.yml`
 - `.github/workflows/branch12-runtime-regression.yml`
 - `scripts/branch12-integrate.mjs`
+
+Im finalen Workflow-Verzeichnis bleiben nur die permanenten `ci.yml` und `pages.yml`. Unter `scripts/` bleibt ausschließlich `check-assets.mjs`.
 
 Dauerhaft bleiben:
 
