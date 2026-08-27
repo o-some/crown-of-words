@@ -68,7 +68,7 @@ export const REGIONS_5_8 = Object.freeze({
     boss:[
       {id:'corvin-1',type:'choice',prompt:'Schiebe dich nach rechts.',answers:['Move to the right.','Move to the left.','Stay where you are.'],correct:'Move to the right.'},
       {id:'corvin-2',type:'choice',prompt:'Er sprang über die Kiste.',answers:['He jumped over the box.','He walks around the box.','He sits beside the box.'],correct:'He jumped over the box.'},
-      {id:'corvin-3',type:'sentence',prompt:'Gegenmanöver: Bewege die Reihe zurück nach links.',tokens:['Move','the','row','back','to','the','left.'],correct:['Move','the','row','back','to','the','left.'],counter:true},
+      {id:'corvin-3',type:'sentence',prompt:'Gegenmanöver: Bewege diese Reihe zurück nach links.',tokens:['Move','this','row','back','to','the','left.'],correct:['Move','this','row','back','to','the','left.'],counter:true},
     ],
   },
 });
