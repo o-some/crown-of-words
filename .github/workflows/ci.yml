@@ -37,6 +37,8 @@ jobs:
         run: npm run test:learning
       - name: Kai boss core
         run: npm run test:kai
+      - name: Regions 2-4 boss and session contracts
+        run: npm run test:regions9
       - name: Save and reload contract
         run: npm run test:save
       - name: Card hand contract
