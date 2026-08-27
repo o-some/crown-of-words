@@ -1,0 +1,34 @@
+name: Branch 11 Asset Import
+on:
+  push:
+    branches: [branch-11-harbor-castle-finale]
+    paths: ['.github/workflows/branch11-assets.yml']
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned harbor/castle assets
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/worlds public/assets/bosses docs
+          WORLD='https://raw.githubusercontent.com/o-some/tulasisland/cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0/assets/creative'
+          BOSS='https://raw.githubusercontent.com/o-some/word-scramble/ac594046c99ac63954164fe6da0a89ff92c29cf4/assets/bosses'
+          curl -fL "$WORLD/world_harbor.webp" -o public/assets/worlds/world-harbor.webp
+          curl -fL "$WORLD/world_castle.webp" -o public/assets/worlds/world-castle.webp
+          curl -fL "$BOSS/level-09-schattenfuerst-azrak.webp" -o public/assets/bosses/boss-09-azrak.webp
+          curl -fL "$BOSS/level-10-piratenkoenig-varkos.webp" -o public/assets/bosses/boss-10-varkos.webp
+          test "$(stat -c%s public/assets/worlds/world-harbor.webp)" = 372646
+          test "$(stat -c%s public/assets/worlds/world-castle.webp)" = 324804
+          test "$(stat -c%s public/assets/bosses/boss-09-azrak.webp)" = 284304
+          test "$(stat -c%s public/assets/bosses/boss-10-varkos.webp)" = 347868
+          sha256sum public/assets/worlds/world-harbor.webp public/assets/worlds/world-castle.webp public/assets/bosses/boss-09-azrak.webp public/assets/bosses/boss-10-varkos.webp > docs/BRANCH_11_ASSET_SHA256.txt
+      - name: Commit assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/worlds public/assets/bosses docs/BRANCH_11_ASSET_SHA256.txt
+          git commit -m 'assets: import pinned harbor and castle runtimes'
+          git push
