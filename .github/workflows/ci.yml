@@ -49,5 +49,7 @@ jobs:
         run: npm run test:cards
       - name: Helper commander contract
         run: npm run test:helpers
+      - name: Tulas Island host adapter contract
+        run: npm run test:host
       - name: Production build
         run: npm run build
