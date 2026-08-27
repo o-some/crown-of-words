@@ -27,5 +27,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Syntax check
         run: npm run check:syntax
+      - name: Asset integrity
+        run: npm run check:assets
       - name: Production build
         run: npm run build
