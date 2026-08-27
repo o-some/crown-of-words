@@ -1,4 +1,5 @@
 name: Branch 9 UI Integration
+# presentation patch rerun after escaping nested template literals
 on:
   push:
     branches: [branch-9-regions-2-4]
@@ -13,6 +14,24 @@ jobs:
         with: { ref: branch-9-regions-2-4 }
       - uses: actions/setup-node@v4
         with: { node-version: 24 }
+      - name: Make generated renderer source template-safe
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/branch9-ui-patch.mjs')
+          s=p.read_text()
+          replacements={
+            "\\${res.won?`Zu \\${r.bossName}`:'Nochmal versuchen'}":"\\${res.won?'Zu '+r.bossName:'Nochmal versuchen'}",
+            "\\${res.won?`\\${r.bossName} wurde mit Sprache besiegt.`:'Lernfortschritt bleibt erhalten. Die finale Bossaufgabe muss korrekt sein.'}":"\\${res.won?r.bossName+' wurde mit Sprache besiegt.':'Lernfortschritt bleibt erhalten. Die finale Bossaufgabe muss korrekt sein.'}",
+            "\\${state.region24Feedback.correct?'+3 Wortkraft':`Richtig wäre: \\${state.region24Feedback.expected}`}":"\\${state.region24Feedback.correct?'+3 Wortkraft':'Richtig wäre: '+state.region24Feedback.expected}",
+          }
+          for old,new in replacements.items():
+            if old not in s:
+              raise SystemExit(f'missing template fix: {old}')
+            s=s.replace(old,new)
+          p.write_text(s)
+          PY
+      - run: node --check scripts/branch9-ui-patch.mjs
       - run: node scripts/branch9-ui-patch.mjs
       - run: node --check src/main.js
       - run: |
