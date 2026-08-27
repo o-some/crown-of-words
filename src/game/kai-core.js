@@ -2,19 +2,22 @@ function nextSeed(seed) {
   return (Math.imul(seed >>> 0, 1664525) + 1013904223) >>> 0;
 }
 
-export function createKaiState(challengeIds, seed = 1201) {
+export function createKaiState(challengeIds, seed = 1201, { fixedIds = [] } = {}) {
   if (!Array.isArray(challengeIds) || challengeIds.length < 3) throw new Error('Kai needs at least three tasks');
+  const fixed = fixedIds.filter((id) => challengeIds.includes(id));
   return {
     order: [...challengeIds],
     resolved: [],
     seed: seed >>> 0,
     lastSwap: null,
     anchoredId: null,
+    fixedIds: fixed,
   };
 }
 
 export function anchorKaiTask(state, challengeId) {
   if (!state.order.includes(challengeId)) throw new Error('unknown Kai task');
+  if (state.fixedIds.includes(challengeId)) return state;
   return { ...state, anchoredId: challengeId };
 }
 
@@ -23,7 +26,7 @@ export function resolveKaiTask(state, challengeId) {
   if (state.resolved.includes(challengeId)) throw new Error('Kai task already resolved');
 
   const resolved = [...state.resolved, challengeId];
-  const candidates = state.order.filter((id) => !resolved.includes(id) && id !== state.anchoredId);
+  const candidates = state.order.filter((id) => !resolved.includes(id) && id !== state.anchoredId && !state.fixedIds.includes(id));
   let seed = nextSeed(state.seed);
   let order = [...state.order];
   let lastSwap = null;
@@ -42,6 +45,7 @@ export function resolveKaiTask(state, challengeId) {
   }
 
   return {
+    ...state,
     order,
     resolved,
     seed,
