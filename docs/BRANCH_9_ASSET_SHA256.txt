@@ -1,0 +1,6 @@
+c19b212b0f7fa0ba4010d9693c0a663c28e372e890d6a3e206c49c970e30a574  public/assets/worlds/world-library.webp
+8957519ff27446430a19ec9e7a47b649aaccee4ceddc5e65433ee8ba47ebc299  public/assets/worlds/world-jungle-trail.webp
+c16847b0211f44e305dcc5d5122ec33e9fe48706f01262e2d115d5ae1a0b5cda  public/assets/worlds/world-sun-bay.webp
+82966b1e2a8b1b9a5d3b547edaf1657d160fe9e40965d7858d8be0db25c95632  public/assets/bosses/boss-02-kapitaen-brax.png
+243e8d39cb4c0ebe6255e5970064711f35fe3459772b53077edd7ab27b1b0763  public/assets/bosses/boss-03-blackfinn.png
+c5869e538eaa6789db389b8c35d9e13d76ee299ee9ebb87c778b700af7efd446  public/assets/bosses/boss-04-roderick.png
