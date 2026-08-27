@@ -2,6 +2,8 @@ import './styles.css';
 import { createEncounter, evaluateChallenge, resolveBossEncounter, resolveStandardEncounter } from './game/learning-core.js';
 import { anchorKaiTask, createKaiState, resolveKaiTask, visibleKaiQueue } from './game/kai-core.js';
 import { GARDEN_BOSS_CHALLENGES, GARDEN_STANDARD_CHALLENGES } from './content/garden-content.js';
+import { createSaveEnvelope, restoreSaveEnvelope } from './game/save-contract.js';
+import { clearStandaloneSave, loadStandaloneSave, saveStandaloneSave } from './adapters/standalone-storage.js';
 
 const root = document.querySelector('#app');
 if (!root) throw new Error('Crown of Words mount point #app is missing.');
@@ -26,6 +28,8 @@ function freshState() {
     anchorReady: false,
     anchorMessage: '',
     swapNotice: null,
+    paused: false,
+    helpOpen: false,
   };
 }
 
@@ -57,9 +61,17 @@ function resetBoss() {
   render();
 }
 
-state = freshState();
+const restoredState = restoreSaveEnvelope(loadStandaloneSave());
+state = restoredState ?? freshState();
+state.paused = Boolean(state.paused);
+state.helpOpen = Boolean(state.helpOpen);
 
 function shell(content, { world = false } = {}) {
+  const overlay = state.paused
+    ? `<section class="game-overlay" data-testid="pause-overlay" role="dialog" aria-modal="true" aria-labelledby="pause-title"><div class="game-overlay__card glass-card"><span class="eyebrow">Spiel angehalten</span><h2 id="pause-title">Pause</h2><p>Dein aktueller Auftrag bleibt exakt erhalten.</p><button class="primary-button" data-action="resume" data-testid="resume-game">Weiterspielen</button></div></section>`
+    : state.helpOpen
+      ? `<section class="game-overlay" data-testid="help-overlay" role="dialog" aria-modal="true" aria-labelledby="help-title"><div class="game-overlay__card glass-card"><span class="eyebrow">Tulas Hilfe</span><h2 id="help-title">So gewinnst du</h2><p>Löse Wörter und Sätze. Hinweise helfen, geben aber weniger Wortkraft. Bei Kai bleibt die richtige Antwort immer unverändert.</p><button class="primary-button" data-action="close-help" data-testid="close-help">Verstanden</button></div></section>`
+      : '';
   return `
     <main class="game-shell ${world ? 'game-shell--world' : ''}">
       <header class="topbar">
@@ -67,9 +79,10 @@ function shell(content, { world = false } = {}) {
           <span class="eyebrow">Tula's Island</span>
           <strong>Crown of Words</strong>
         </div>
-        <div class="topbar__seal" aria-label="Kronensiegel 0 von 10">0 / 10</div>
+        <div class="topbar__tools"><button class="topbar__tool" data-action="help" aria-label="Hilfe öffnen">Hilfe</button><button class="topbar__tool" data-action="pause" aria-label="Spiel pausieren">Pause</button><div class="topbar__seal" aria-label="Kronensiegel 0 von 10">0 / 10</div></div>
       </header>
       ${content}
+      ${overlay}
     </main>
   `;
 }
@@ -321,6 +334,7 @@ function renderBossResult() {
 }
 
 function render() {
+  saveStandaloneSave(createSaveEnvelope(state));
   switch (state.screen) {
     case 'campaign': renderCampaign(); break;
     case 'garden': renderGarden(); break;
@@ -390,6 +404,10 @@ root.addEventListener('click', (event) => {
   }
 
   switch (target.dataset.action) {
+    case 'pause': state.paused = true; state.helpOpen = false; render(); break;
+    case 'resume': state.paused = false; render(); break;
+    case 'help': state.helpOpen = true; state.paused = false; render(); break;
+    case 'close-help': state.helpOpen = false; render(); break;
     case 'open-garden': state.screen = 'garden'; render(); break;
     case 'campaign': state.screen = 'campaign'; render(); break;
     case 'start-standard': resetStandard(); break;
@@ -413,7 +431,7 @@ root.addEventListener('click', (event) => {
       render();
       break;
     case 'retry-boss': resetBoss(); break;
-    case 'campaign-reset': state = freshState(); render(); break;
+    case 'campaign-reset': clearStandaloneSave(); state = freshState(); render(); break;
     default: break;
   }
 });
