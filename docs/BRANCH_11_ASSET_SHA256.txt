@@ -1,0 +1,4 @@
+db28d4b180aac22d36e49a35549faa3159917b42cafd26fe39c0253d768275d3  public/assets/worlds/world-harbor.webp
+a119855af6b384aaa38829729cf5306c566bfaaecebb2c86511d7eb4ee993887  public/assets/worlds/world-castle.webp
+ce1cb05e061c5ee9bbfaaad177be69eb2fe8b56a64b8f43db58f777c2bb37299  public/assets/bosses/boss-09-azrak.webp
+2088bb64dcb552b8e709ca73985f4f3949719a572c41ecc089efec97472f3036  public/assets/bosses/boss-10-varkos.webp
