@@ -26,6 +26,19 @@ const regions = {
 function assert(v,m){if(!v)throw new Error(m)}
 async function noOverflow(page,label){const m=await page.evaluate(()=>({w:innerWidth,h:document.documentElement.scrollWidth,b:document.body.scrollWidth}));assert(m.h<=m.w+1&&m.b<=m.w+1,`${label}: horizontal overflow ${JSON.stringify(m)}`)}
 async function imageLoaded(page, selector, label){await page.waitForFunction((sel)=>{const img=document.querySelector(sel);return Boolean(img&&img.complete&&img.naturalWidth>0)},selector,{timeout:8000}).catch(()=>{});const ok=await page.locator(selector).evaluate(img=>img.complete&&img.naturalWidth>0);assert(ok,`${label}: image did not load`)}
+async function backgroundLoaded(page, selector, label){
+  const result=await page.locator(selector).evaluate(async(el)=>{
+    const value=getComputedStyle(el).backgroundImage;
+    const match=value.match(/url\(["']?(.*?)["']?\)/);
+    if(!match?.[1])return {ok:false,value};
+    const src=match[1];
+    const img=new Image();
+    img.src=src;
+    try{if(img.decode)await img.decode();else await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject});}catch{}
+    return {ok:img.complete&&img.naturalWidth>0,value,src,width:img.naturalWidth,height:img.naturalHeight};
+  });
+  assert(result.ok,`${label}: background did not load ${JSON.stringify(result)}`);
+}
 async function choose(page, answer){const options=page.locator('[data-region24-answer]');const count=await options.count();for(let i=0;i<count;i+=1){const el=options.nth(i);if((await el.getAttribute('data-region24-answer'))===answer){await el.click();return;}}throw new Error(`answer not found: ${answer}`)}
 async function sentence(page){const tokens=page.locator('[data-region24-token]');const count=await tokens.count();for(let i=0;i<count;i+=1)await page.locator(`[data-region24-token="${i}"]`).click();await page.locator('[data-action="region24-submit-sentence"]').click();}
 async function nextFeedback(page, action){await page.locator(`.feedback [data-action="${action}"]`).click();}
@@ -34,6 +47,7 @@ async function runRegion(page, regionId, cfg, viewportName){
   await page.locator(`[data-region24="${regionId}"]`).click();
   await page.getByTestId('region24-screen').waitFor();
   assert((await page.getByTestId('region24-screen').innerText()).includes(cfg.label),`${viewportName}/${regionId}: region label missing`);
+  await backgroundLoaded(page,'[data-testid="region24-screen"] .world-hero',`${viewportName}/${regionId}/world-background`);
   await noOverflow(page,`${viewportName}/${regionId}/world`);
   if(regionId==='library'&&viewportName==='iphone-small')await page.screenshot({path:'test-artifacts/branch9/iphone-small-library.png',fullPage:true});
   if(regionId==='home'&&viewportName==='desktop')await page.screenshot({path:'test-artifacts/branch9/desktop-home.png',fullPage:true});
