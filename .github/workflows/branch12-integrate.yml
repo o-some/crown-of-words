@@ -1,4 +1,5 @@
 name: Branch 12 Integration Patch
+# trigger guarded host integration
 on:
   push:
     branches: [branch-12-host-integration]
