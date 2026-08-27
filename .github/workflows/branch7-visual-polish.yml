@@ -1,4 +1,5 @@
 name: Branch 7 Visual Polish
+# second commit triggers this feature-branch workflow after registration
 on:
   push:
     branches:
