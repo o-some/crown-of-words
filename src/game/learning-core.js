@@ -1,8 +1,17 @@
 export const HINT_LEVELS = Object.freeze([0,1,2,3]);
 
-export function createChallenge({ id, type, conceptId, crown = false, correctAnswer }) {
+export function createChallenge({ id, type, conceptId, crown = false, correctAnswer, prompt = '', options = [], tokens = [] }) {
   if (!id || !type || !conceptId || correctAnswer == null) throw new Error('invalid challenge');
-  return Object.freeze({ id, type, conceptId, crown: Boolean(crown), correctAnswer });
+  return Object.freeze({
+    id,
+    type,
+    conceptId,
+    crown: Boolean(crown),
+    correctAnswer,
+    prompt,
+    options: Object.freeze([...options]),
+    tokens: Object.freeze([...tokens]),
+  });
 }
 
 export function createEncounter(challenges) {
