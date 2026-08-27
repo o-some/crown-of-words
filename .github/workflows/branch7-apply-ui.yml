@@ -1,4 +1,5 @@
 name: Branch 7 UI Patch
+# second commit triggers this feature-branch workflow after registration
 on:
   push:
     branches:
