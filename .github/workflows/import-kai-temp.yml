@@ -1,0 +1,30 @@
+name: Temporary Kai Import
+on:
+  push:
+    branches:
+      - branch-5-garden-kai-vertical-slice
+    paths:
+      - '.github/workflows/import-kai-temp.yml'
+permissions:
+  contents: write
+jobs:
+  import-kai:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: branch-5-garden-kai-vertical-slice
+      - name: Download verified Kai sprite
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/bosses
+          curl --fail --location --silent --show-error 'https://ucb11bc2da49014cccd6949e668f.dl.dropboxusercontent.com/cd/0/get/DG8Nz9z0zMYVd7fmbeVRkihHGv-Lk43IpInQ0fqO6zjuIl73T7PxxiLC3LyWrP-Sm1R6PPDedtl-yUcSwTPKg0bWN_DCJM-2lRzc0laSUCekZfN8vxnkr4b9T20VASUZR-P6pmuVC2pib4A_G6ximlcXK-Stg0fqCJOZpfJ4A3dTlg/file?c_luid=88361d58' -o public/assets/bosses/pirat-kai.png
+          test "$(wc -c < public/assets/bosses/pirat-kai.png)" -eq 655568
+          echo 'f95cce54828690c9e29bdf3f8af60877f35254761c281251c0f9bbba44f85d45  public/assets/bosses/pirat-kai.png' | sha256sum -c -
+      - name: Commit Kai asset
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/bosses/pirat-kai.png
+          git commit -m 'assets: import verified Pirat Kai sprite'
+          git push origin HEAD:branch-5-garden-kai-vertical-slice
