@@ -1,5 +1,5 @@
 name: Branch 7 Browser Playtest
-# second commit triggers this feature-branch workflow after registration
+# rerun after visual-evidence readability polish
 on:
   push:
     branches:
@@ -39,6 +39,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: branch7-playtest-evidence
+          name: branch7-playtest-evidence-polished
           path: test-artifacts/branch7/*.png
           if-no-files-found: ignore
