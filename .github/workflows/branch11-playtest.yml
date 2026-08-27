@@ -1,0 +1,40 @@
+name: Branch 11 Browser Playtest
+on:
+  push:
+    branches: [branch-11-harbor-castle-finale]
+    paths: ['.github/workflows/branch11-playtest.yml']
+permissions:
+  contents: read
+jobs:
+  playtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 24, cache: npm}
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - name: Start production preview
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/crown-preview.log 2>&1 &
+          for i in {1..30}; do if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then exit 0; fi; sleep 1; done
+          cat /tmp/crown-preview.log; exit 1
+      - name: Install ephemeral browser runtime
+        run: npm exec --yes --package=playwright@1.55.0 -- playwright install chromium
+      - name: Run Branch 11 finale playtest
+        run: |
+          PW_PACKAGE=$(find ~/.npm/_npx -path '*/node_modules/playwright/package.json' | head -n1)
+          test -n "$PW_PACKAGE"
+          PW_MODULES=$(dirname "$(dirname "$PW_PACKAGE")")
+          NODE_PATH="$PW_MODULES" PLAYTEST_URL=http://127.0.0.1:4173/ node tests/e2e/branch11-harbor-castle.cjs
+      - name: Run Branch 10 regression path
+        run: |
+          PW_PACKAGE=$(find ~/.npm/_npx -path '*/node_modules/playwright/package.json' | head -n1)
+          PW_MODULES=$(dirname "$(dirname "$PW_PACKAGE")")
+          NODE_PATH="$PW_MODULES" PLAYTEST_URL=http://127.0.0.1:4173/ node tests/e2e/branch10-regions-5-8.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: branch11-playtest-evidence
+          path: test-artifacts/branch11/*.png
+          if-no-files-found: ignore
