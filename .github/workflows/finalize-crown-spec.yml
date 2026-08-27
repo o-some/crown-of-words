@@ -1,6 +1,6 @@
 name: Finalize Crown of Words master spec
 
-# Triggered after all five verified transfer parts are present on main.
+# One-time verified reconstruction of the full master spec.
 on:
   push:
     branches:
@@ -28,7 +28,9 @@ jobs:
               .crown-spec-transfer/part01.b64 \
               .crown-spec-transfer/part02.b64 \
               .crown-spec-transfer/part03.b64 \
-              .crown-spec-transfer/part04.b64 > /tmp/crown-spec.xz.b64
+              .crown-spec-transfer/part04.b64 \
+            | tr -cd 'A-Za-z0-9+/=' > /tmp/crown-spec.xz.b64
+          echo "Normalized base64 bytes: $(wc -c < /tmp/crown-spec.xz.b64)"
           base64 --decode /tmp/crown-spec.xz.b64 > /tmp/crown-spec.xz
           xz --decompress --stdout /tmp/crown-spec.xz > TULAS_ISLAND_CROWN_OF_WORDS_MASTER_SPEC_2026-08-27.md
           test "$(wc -c < TULAS_ISLAND_CROWN_OF_WORDS_MASTER_SPEC_2026-08-27.md)" -eq 86799
