@@ -1,0 +1,30 @@
+name: Branch 9 Canonical Assets
+on:
+  push:
+    branches: [branch-9-regions-2-4]
+    paths: ['.github/workflows/branch9-assets.yml']
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: branch-9-regions-2-4 }
+      - name: Download exact Dropbox source assets
+        run: |
+          mkdir -p public/assets/worlds public/assets/bosses
+          curl -fL --retry 2 'https://uc506d94f5a1c7c13a49b40e9972.dl.dropboxusercontent.com/cd/0/get/DG-R3eg2chp1mFEeuvX5Hc8kEW-e6UQkgY8SlW6tmA2XUHP2_jK0wv1DsIpZjpxYJnQYPfT_4hVSinhgyaw6TnbqI5GKJVpT1V_h5-CFcfteKjvf2lPevVMTLIuL-wUfsZNKOt4NRCfgwNquc2dxXfxw8xnQcMiLTKmBCw4nAyGCQg/file?c_luid=88361d58' -o public/assets/worlds/world-library.webp
+          curl -fL --retry 2 'https://uc132dc97be781af8a734cbc2141.dl.dropboxusercontent.com/cd/0/get/DG9hqVfahZqW4_5UG_Fs0h6rO4XHwa3aEH5vFrMggcqOIugkui1p0SfSZcHG1PzId4HSVNPbaLdMNNvf6ATlesfkf-qYfQ_QPc2gA9sUl9NYgI67Rx0uJPJdRHXcbTVIFX_BNDOevrlRhMTlZw-6_Z8fcfs7x34CU-WbaWUFeJICxw/file?c_luid=88361d58' -o public/assets/worlds/world-jungle-trail.webp
+          curl -fL --retry 2 'https://uc094196161704cf9b03cebff979.dl.dropboxusercontent.com/cd/0/get/DG-im6IOn-DukLObnXG7OUZ_nlYsytNlnq1-61RmYTuWGyHByLeb9zATOjkDEGOAPJESrCGWVWv9FaDaot2omlU9wtb--LCNwt6k0uGFXBLFLdwEw1RDo0V743fzuSe9WQLvcRNCkX2tNIbJVkHTajLOeMNqdldZpdma4cX3U8G1Kw/file?c_luid=88361d58' -o public/assets/worlds/world-sun-bay.webp
+          curl -fL --retry 2 'https://ucb486cc402d5b86e09e9df4cdec.dl.dropboxusercontent.com/cd/0/get/DG_9bG1Y0wkHy2d0YvLQDvsvX7QKnb7Q4fhuz48RB1FEKLmTvHvpwBLjDmVLkJcbXvnNxGFG5UdglqiqFrZWl1R3MDBmvPJVQQRvJhzMgeVhCUyU82eR08GeHuph8YK9h_dEv2Us-cKGAk6lekqA5FzQx5zPrDJbs_GobBvU97N0-g/file?c_luid=88361d58' -o public/assets/bosses/boss-02-kapitaen-brax.png
+          curl -fL --retry 2 'https://uc9b56c8deea025346211043e721.dl.dropboxusercontent.com/cd/0/get/DG_qIBObPA50KMsnvpHDSkBo6dPki2TIOnV6RodwdvdosFhWED8Gx5o9AFOobbBUTxzHJd9yYwhoyK3A4gy0ygxT6B1g5TU1Y4BS99ESq1rJ3amZ2HV2hJHH7VHVMqed30UOUMb_mSahfKNWfJ8l7jVzRoktUlPoUCMZMcE0MT2dMA/file?c_luid=88361d58' -o public/assets/bosses/boss-03-blackfinn.png
+          curl -fL --retry 2 'https://uc055834b0e3ea0bd5d7e7d5922f.dl.dropboxusercontent.com/cd/0/get/DG97XnzPOC0v1OZnGfsqqbCOiRNdo8pv7lkGmHgt64b3av4KADWZhV2gNL_NwweVuCQvg9LgpbTHqvkQ8XAfgSoWHzx8A6je8X8iiRz8ZSn4GCjVHY4qizMrTVtj9iDJNeelU8lljPM71CruFODAfXIHvrPB-NoQRtHf9-MpEz-fyg/file?c_luid=88361d58' -o public/assets/bosses/boss-04-roderick.png
+          sha256sum public/assets/worlds/world-library.webp public/assets/worlds/world-jungle-trail.webp public/assets/worlds/world-sun-bay.webp public/assets/bosses/boss-02-kapitaen-brax.png public/assets/bosses/boss-03-blackfinn.png public/assets/bosses/boss-04-roderick.png > docs/BRANCH_9_ASSET_SHA256.txt
+      - name: Commit assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets docs/BRANCH_9_ASSET_SHA256.txt
+          git commit -m 'assets: add canonical regions 2-4 worlds and bosses'
+          git push origin HEAD:branch-9-regions-2-4
