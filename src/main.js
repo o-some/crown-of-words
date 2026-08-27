@@ -4,6 +4,9 @@ import { anchorKaiTask, createKaiState, resolveKaiTask, visibleKaiQueue } from '
 import { GARDEN_BOSS_CHALLENGES, GARDEN_STANDARD_CHALLENGES } from './content/garden-content.js';
 import { createSaveEnvelope, restoreSaveEnvelope } from './game/save-contract.js';
 import { clearStandaloneSave, loadStandaloneSave, saveStandaloneSave } from './adapters/standalone-storage.js';
+import { createCardHand, deriveCardBonuses, resolveSelectedCard, selectCard } from './game/card-core.js';
+import { HELPER_DEFINITIONS, applyHelperEvent, createHelperState, helperDefinition, selectHelper } from './game/helper-core.js';
+import { GARDEN_CARDS } from './content/garden-cards.js';
 
 const root = document.querySelector('#app');
 if (!root) throw new Error('Crown of Words mount point #app is missing.');
@@ -13,6 +16,7 @@ const byId = (id) => document.getElementById(id);
 const challengeById = (list, id) => list.find((item) => item.id === id);
 
 let state;
+let draggedTokenIndex = null;
 
 function freshState() {
   return {
@@ -30,6 +34,11 @@ function freshState() {
     swapNotice: null,
     paused: false,
     helpOpen: false,
+    cardHand: createCardHand(GARDEN_CARDS),
+    helper: createHelperState('helper-meli-food'),
+    helperPressureReduction: 0,
+    cardNotice: '',
+    helperNotice: '',
   };
 }
 
@@ -39,6 +48,14 @@ function resetStandard() {
   state.feedback = null;
   state.hintLevel = 0;
   state.builtTokens = [];
+  state.cardHand = createCardHand(GARDEN_CARDS);
+  state.helper = createHelperState(state.helper?.helperId ?? 'helper-meli-food');
+  state.helperPressureReduction = 0;
+  state.cardNotice = '';
+  state.helperNotice = '';
+  const helperStart = applyHelperEvent(state.helper, 'encounter-start', { regionId: 'garden' });
+  state.helper = helperStart.state;
+  if (helperStart.effect) state.helperNotice = helperStart.effect.label;
   state.screen = 'challenge';
   render();
 }
@@ -57,6 +74,14 @@ function resetBoss() {
   state.anchorReady = false;
   state.anchorMessage = '';
   state.swapNotice = null;
+  state.cardHand = createCardHand(GARDEN_CARDS);
+  state.helper = createHelperState(state.helper?.helperId ?? 'helper-meli-food');
+  state.helperPressureReduction = 0;
+  state.cardNotice = '';
+  state.helperNotice = '';
+  const helperStart = applyHelperEvent(state.helper, 'encounter-start', { regionId: 'garden' });
+  state.helper = helperStart.state;
+  if (helperStart.effect) state.helperNotice = helperStart.effect.label;
   state.screen = 'boss';
   render();
 }
@@ -65,6 +90,11 @@ const restoredState = restoreSaveEnvelope(loadStandaloneSave());
 state = restoredState ?? freshState();
 state.paused = Boolean(state.paused);
 state.helpOpen = Boolean(state.helpOpen);
+state.cardHand = state.cardHand ?? createCardHand(GARDEN_CARDS);
+state.helper = state.helper ?? createHelperState('helper-meli-food');
+state.helperPressureReduction = Number(state.helperPressureReduction ?? 0);
+state.cardNotice = state.cardNotice ?? '';
+state.helperNotice = state.helperNotice ?? '';
 
 function shell(content, { world = false } = {}) {
   const overlay = state.paused
@@ -113,6 +143,38 @@ function renderCampaign() {
   `);
 }
 
+function helperPickerHTML() {
+  return `<section class="loadout-block" aria-labelledby="helper-title">
+    <div class="loadout-block__head"><span class="eyebrow">Kommandant</span><strong id="helper-title">Wähle deinen Helfer</strong></div>
+    <div class="helper-picker" data-testid="helper-picker">
+      ${HELPER_DEFINITIONS.map((helper) => {
+        const selected = state.helper?.helperId === helper.id;
+        return `<button class="helper-option ${selected ? 'helper-option--selected' : ''}" data-helper-id="${helper.id}" aria-pressed="${selected}">
+          <img src="${asset(helper.asset)}" alt="${helper.name}" />
+          <span><strong>${helper.name}</strong><small>${helper.focus}</small></span>
+        </button>`;
+      }).join('')}
+    </div>
+  </section>`;
+}
+
+function cardHandHTML({ compact = false } = {}) {
+  return `<section class="card-hand ${compact ? 'card-hand--compact' : ''}" data-testid="card-hand" aria-label="Vier Taktikkarten">
+    ${state.cardHand.cards.map((entry) => {
+      const card = entry.definition;
+      const selected = state.cardHand.selectedId === card.id;
+      const disabled = entry.status !== 'ready';
+      const statusLabel = entry.status === 'played' ? 'gespielt' : entry.status === 'exhausted' ? 'erschöpft' : selected ? 'gewählt' : 'bereit';
+      return `<button class="tactic-card tactic-card--${entry.status} ${selected ? 'tactic-card--selected' : ''}" data-card-id="${card.id}" aria-pressed="${selected}" ${disabled ? 'disabled' : ''}>
+        <span class="tactic-card__cost">${card.cost}</span>
+        <strong>${card.name}</strong>
+        <small>${compact ? statusLabel : card.description}</small>
+        <span class="tactic-card__status">${statusLabel}</span>
+      </button>`;
+    }).join('')}
+  </section>`;
+}
+
 function renderGarden() {
   root.innerHTML = shell(`
     <section class="region-view" data-testid="garden-screen">
@@ -137,7 +199,9 @@ function renderGarden() {
           <h2>Die Anlegestelle zurückholen</h2>
           <p>Fünf Aufgaben. Die letzte ist eine Crown Sentence. Deine Lernleistung entscheidet über den Sieg.</p>
         </div>
-        <button class="primary-button" data-action="start-standard" data-testid="start-standard">Wortduell starten</button>
+        ${helperPickerHTML()}
+        <div class="loadout-block"><div class="loadout-block__head"><span class="eyebrow">Vier-Karten-Hand</span><strong>Sprache schaltet Taktik frei</strong></div>${cardHandHTML()}</div>
+        <button class="primary-button" data-action="start-standard" data-testid="start-standard">Mit diesem Team starten</button>
         <button class="text-button" data-action="campaign">Zur Inselkarte</button>
       </section>
     </section>
@@ -159,11 +223,11 @@ function answerArea(challenge, bossMode = false) {
     const built = state.builtTokens;
     return `
       <div class="sentence-builder" data-testid="sentence-builder">
-        <div class="sentence-builder__zone" aria-label="Gebauter Satz">
+        <div class="sentence-builder__zone" data-token-dropzone tabindex="0" aria-label="Gebauter Satz – Wörter können getippt oder hierher gezogen werden">
           ${built.length ? built.map((token, index) => `<button class="built-token" data-remove-token="${index}">${token}</button>`).join('') : '<span>Tippe die Wörter in der richtigen Reihenfolge an.</span>'}
         </div>
         <div class="token-bank">
-          ${challenge.tokens.map((token, index) => `<button class="token" data-token-index="${index}" ${built.includes(token) ? 'disabled' : ''}>${token}</button>`).join('')}
+          ${challenge.tokens.map((token, index) => `<button class="token" data-token-index="${index}" data-drag-token-index="${index}" draggable="true" ${built.includes(token) ? 'disabled' : ''}>${token}</button>`).join('')}
         </div>
         <button class="primary-button" data-action="submit-sentence" ${built.length !== challenge.tokens.length ? 'disabled' : ''}>Crown Sentence prüfen</button>
       </div>
@@ -186,6 +250,8 @@ function renderFeedback(nextAction) {
       <strong>${item.correct ? 'Richtig!' : 'Noch nicht.'}</strong>
       <p>${item.correct ? `+${item.power} Wortkraft` : `Richtig wäre: ${item.correctAnswer}`}</p>
       ${state.swapNotice ? `<div class="cheat-notice">Kai schummelt! ${state.swapNotice}</div>` : ''}
+      ${state.cardNotice ? `<div class="tactic-notice">${state.cardNotice}</div>` : ''}
+      ${state.helperNotice ? `<div class="helper-notice">${state.helperNotice}</div>` : ''}
       <button class="primary-button" data-action="${nextAction}">Weiter</button>
     </section>
   `;
@@ -204,6 +270,7 @@ function renderStandardChallenge() {
   root.innerHTML = shell(`
     <section class="challenge-stage" data-testid="standard-challenge">
       ${progressHTML(state.standard, state.standardIndex + 1, GARDEN_STANDARD_CHALLENGES.length)}
+      ${cardHandHTML({ compact: true })}
       <div class="challenge-card glass-card ${challenge.crown ? 'challenge-card--crown' : ''}">
         <div class="challenge-card__guide"><img src="${asset('tula/tula-happy.webp')}" alt="Tula" /></div>
         <span class="eyebrow">${challenge.crown ? 'Crown Sentence' : 'Übersetze ins Englische'}</span>
@@ -217,7 +284,9 @@ function renderStandardChallenge() {
 }
 
 function renderStandardResult() {
-  const result = resolveStandardEncounter(state.standard, { tacticPower: 1, enemyPressure: 1 });
+  const bonuses = deriveCardBonuses(state.cardHand);
+  const enemyPressure = Math.max(0, 1 - bonuses.pressureReduction - state.helperPressureReduction);
+  const result = resolveStandardEncounter(state.standard, { tacticPower: bonuses.tacticPower, enemyPressure });
   root.innerHTML = shell(`
     <section class="result-screen ${result.won ? 'result-screen--win' : ''}" data-testid="standard-result">
       <img class="result-screen__tula" src="${asset('tula/tula-happy.webp')}" alt="Tula freut sich" />
@@ -304,6 +373,7 @@ function renderBoss() {
         <div class="boss-hp"><span style="width:${Math.max(0, state.bossHp) * 20}%"></span></div>
       </div>
       ${bossQueueHTML()}
+      ${cardHandHTML({ compact: true })}
       ${state.anchorMessage ? `<p class="anchor-message">${state.anchorMessage}</p>` : ''}
       <div class="challenge-card glass-card ${challenge.crown ? 'challenge-card--crown' : ''}">
         <span class="eyebrow">${challenge.crown ? 'Finale Crown Sentence' : 'Kai fordert dich heraus'}</span>
@@ -317,7 +387,9 @@ function renderBoss() {
 }
 
 function renderBossResult() {
-  const result = resolveBossEncounter(state.boss, { tacticPower: 4, enemyPressure: 1, bossHp: state.bossHp });
+  const bonuses = deriveCardBonuses(state.cardHand);
+  const enemyPressure = Math.max(0, 1 - bonuses.pressureReduction - state.helperPressureReduction);
+  const result = resolveBossEncounter(state.boss, { tacticPower: bonuses.tacticPower, enemyPressure, bossHp: state.bossHp });
   root.innerHTML = shell(`
     <section class="result-screen ${result.won ? 'result-screen--win' : ''}" data-testid="boss-result">
       <div class="victory-art"><img src="${asset('bosses/pirat-kai.png')}" alt="Pirat Kai besiegt" /><img src="${asset('tula/tula-happy.webp')}" alt="Tula" /></div>
@@ -353,21 +425,42 @@ function submitAnswer(answer) {
   if (!challenge) return;
 
   const attempt = { answer, hintLevel: state.hintLevel };
+  let result;
   if (bossMode) {
     state.boss = evaluateChallenge(state.boss, challenge.id, attempt);
-    const result = state.boss.results[challenge.id];
+    result = state.boss.results[challenge.id];
     if (result.solved) {
       state.bossHp = Math.max(0, state.bossHp - 1);
       if (!challenge.crown) state.anchorReady = true;
     }
     state.kai = resolveKaiTask(state.kai, challenge.id);
     state.swapNotice = state.kai.lastSwap ? 'Zwei kommende Aufträge haben ihre Plätze getauscht.' : null;
-    state.feedback = { ...result, correctAnswer: challenge.correctAnswer };
   } else {
     state.standard = evaluateChallenge(state.standard, challenge.id, attempt);
-    const result = state.standard.results[challenge.id];
-    state.feedback = { ...result, correctAnswer: challenge.correctAnswer };
+    result = state.standard.results[challenge.id];
   }
+
+  const cardResolution = resolveSelectedCard(state.cardHand, { correct: result.solved });
+  state.cardHand = cardResolution.state;
+  state.cardNotice = '';
+  if (cardResolution.outcome) {
+    const card = GARDEN_CARDS.find((item) => item.id === cardResolution.outcome.cardId);
+    if (cardResolution.outcome.type === 'played') state.cardNotice = `${card.name} aktiviert – ${card.description}`;
+    if (cardResolution.outcome.type === 'refunded') state.cardNotice = `Entdecker-Rückerstattung: ${card.name} bleibt bereit.`;
+    if (cardResolution.outcome.type === 'exhausted') state.cardNotice = `${card.name} ist für diese Begegnung erschöpft.`;
+  }
+
+  state.helperNotice = '';
+  if (!result.solved) {
+    const helperResolution = applyHelperEvent(state.helper, 'answer-wrong', { regionId: 'garden' });
+    state.helper = helperResolution.state;
+    if (helperResolution.effect) {
+      state.helperNotice = helperResolution.effect.label;
+      if (helperResolution.effect.type === 'pressure-reduction') state.helperPressureReduction += Number(helperResolution.effect.amount ?? 0);
+    }
+  }
+
+  state.feedback = { ...result, correctAnswer: challenge.correctAnswer };
   state.builtTokens = [];
   render();
 }
@@ -375,6 +468,21 @@ function submitAnswer(answer) {
 root.addEventListener('click', (event) => {
   const target = event.target.closest('button');
   if (!target) return;
+
+  if (target.dataset.helperId) {
+    state.helper = selectHelper(state.helper, target.dataset.helperId);
+    state.helperNotice = '';
+    render();
+    return;
+  }
+
+  if (target.dataset.cardId) {
+    state.cardHand = selectCard(state.cardHand, target.dataset.cardId);
+    const selected = state.cardHand.cards.find((entry) => entry.definition.id === state.cardHand.selectedId);
+    state.cardNotice = selected ? `${selected.definition.name} wartet auf eine richtige Sprachantwort.` : '';
+    render();
+    return;
+  }
 
   if (target.dataset.answer) {
     submitAnswer(target.dataset.answer);
@@ -417,6 +525,8 @@ root.addEventListener('click', (event) => {
     case 'next-standard':
       state.feedback = null;
       state.hintLevel = 0;
+      state.cardNotice = '';
+      state.helperNotice = '';
       state.standardIndex += 1;
       state.screen = state.standard.completed ? 'standard-result' : 'challenge';
       render();
@@ -426,6 +536,8 @@ root.addEventListener('click', (event) => {
     case 'next-boss':
       state.feedback = null;
       state.hintLevel = 0;
+      state.cardNotice = '';
+      state.helperNotice = '';
       state.swapNotice = null;
       state.anchorMessage = state.kai.anchoredId ? state.anchorMessage : '';
       render();
@@ -435,5 +547,32 @@ root.addEventListener('click', (event) => {
     default: break;
   }
 });
+
+root.addEventListener('dragstart', (event) => {
+  const token = event.target.closest('[data-drag-token-index]');
+  if (!token || token.disabled) return;
+  draggedTokenIndex = Number(token.dataset.dragTokenIndex);
+  event.dataTransfer?.setData('text/plain', String(draggedTokenIndex));
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+});
+
+root.addEventListener('dragover', (event) => {
+  if (event.target.closest('[data-token-dropzone]')) event.preventDefault();
+});
+
+root.addEventListener('drop', (event) => {
+  if (!event.target.closest('[data-token-dropzone]')) return;
+  event.preventDefault();
+  const raw = event.dataTransfer?.getData('text/plain');
+  const index = raw !== '' && raw != null ? Number(raw) : draggedTokenIndex;
+  const challenge = state.screen === 'boss' ? bossCurrent() : standardCurrent();
+  if (!challenge || !Number.isInteger(index) || index < 0 || index >= challenge.tokens.length) return;
+  const token = challenge.tokens[index];
+  if (!state.builtTokens.includes(token)) state.builtTokens.push(token);
+  draggedTokenIndex = null;
+  render();
+});
+
+root.addEventListener('dragend', () => { draggedTokenIndex = null; });
 
 render();
