@@ -33,5 +33,7 @@ jobs:
         run: npm run test:campaign
       - name: Pure learning core
         run: npm run test:learning
+      - name: Kai boss core
+        run: npm run test:kai
       - name: Production build
         run: npm run build
