@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createStableEventId, createTulasIslandHostAdapter } from './tulas-island-host.js';
 
-function makeHost() {
+function makeHost({ guest = false } = {}) {
   let state = {
     route: { name: 'game', params: { id: 'crown-of-words' } },
     progress: { xp: 10, shells: 150, stars: {}, mastery: {} },
@@ -16,6 +16,7 @@ function makeHost() {
       getState: () => state,
       setState: updater => { state = updater(structuredClone(state)); return state; },
       creditGameplayShells: async (amount, reason, eventId) => {
+        if (guest) return null;
         if (!rewards.some(item => item.eventId === eventId)) rewards.push({ amount, reason, eventId });
         return true;
       },
@@ -46,10 +47,25 @@ test('stable reward id is deterministic and duplicate does not double progress o
   assert.equal(first.duplicate, false);
   assert.equal(second.duplicate, true);
   assert.equal(host.state.progress.xp, 35);
+  assert.equal(host.state.progress.shells, 150);
   assert.equal(host.state.progress.stars['crown-of-words:garden'], 3);
   assert.equal(host.state.progress.mastery['crown-of-words:garden'], 1);
   assert.equal(host.rewards.length, 1);
   assert.equal(host.rewards[0].eventId, eventId);
+});
+
+test('guest host receives local shells exactly once when economy boundary returns null', async () => {
+  const host = makeHost({ guest: true });
+  const adapter = createTulasIslandHostAdapter(host.capabilities);
+  const eventId = createStableEventId('campaign-clear', 'crown-of-words');
+  const event = { eventId, kind: 'campaign', regionId: 'crown-castle', xp: 250, shells: 100, stars: 3, mastery: 1 };
+  const first = await adapter.commitProgressEvent(event);
+  const second = await adapter.commitProgressEvent(event);
+  assert.equal(first.walletHandledByEconomy, false);
+  assert.equal(second.duplicate, true);
+  assert.equal(host.state.progress.shells, 250);
+  assert.equal(host.state.progress.xp, 260);
+  assert.equal(host.rewards.length, 0);
 });
 
 test('replay can improve stars/mastery without duplicating first-loot event', async () => {
