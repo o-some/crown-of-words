@@ -286,3 +286,40 @@ img { display: block; max-width: 100%; }
   .card-hand:not(.card-hand--compact) .tactic-card { min-height: 64px; }
   .card-hand:not(.card-hand--compact) .tactic-card small { display: none; }
 }
+
+
+/* Branch 8 – visible enemy intents, supply and defense */
+.enemy-intent { display:grid; grid-template-columns:42px minmax(0,1fr) auto; align-items:center; gap:9px; padding:10px 11px; border:1px solid rgb(255 213 117 / 30%); border-radius:18px; background:linear-gradient(135deg, rgb(73 46 52 / 82%), rgb(35 58 63 / 88%)); box-shadow:0 10px 24px rgb(0 0 0 / 15%); }
+.enemy-intent__avatar { width:42px; height:42px; display:grid; place-items:center; border-radius:50%; background:#f0bb5c; color:#263c35; font-weight:950; font-size:1.05rem; box-shadow:inset 0 0 0 3px rgb(255 255 255 / 22%); }
+.enemy-intent__copy { min-width:0; display:grid; gap:2px; }
+.enemy-intent__copy strong { color:#fff6dc; font-size:.82rem; line-height:1.15; }
+.enemy-intent__copy p { margin:0; color:#d9e7e2; font-size:.72rem; line-height:1.3; }
+.enemy-intent__stats { display:grid; gap:3px; text-align:right; }
+.enemy-intent__stats span { color:#bdd4ce; font-size:.62rem; white-space:nowrap; }
+.enemy-intent__stats b { color:#fff1ba; }
+.enemy-intent--resolved { border-color:rgb(116 205 155 / 34%); background:linear-gradient(135deg, rgb(35 83 65 / 84%), rgb(28 57 62 / 88%)); }
+.enemy-intent--compact { padding:7px 9px; grid-template-columns:32px minmax(0,1fr) auto; border-radius:15px; }
+.enemy-intent--compact .enemy-intent__avatar { width:32px; height:32px; font-size:.82rem; }
+.enemy-intent--compact .enemy-intent__copy p { font-size:.66rem; }
+.enemy-intent--compact .enemy-intent__stats span { font-size:.56rem; }
+.enemy-outcome { margin:0; padding:8px 10px; border-radius:13px; color:#dff6e5; background:rgb(42 105 76 / 58%); border:1px solid rgb(122 210 153 / 26%); font-size:.72rem; font-weight:800; line-height:1.35; }
+.enemy-turn-screen { min-height:calc(100dvh - 92px); display:grid; align-content:center; gap:14px; width:min(620px,100%); margin:0 auto; padding:22px 16px 28px; }
+.enemy-turn-screen h1 { margin:0; color:#fff8e6; font-size:clamp(1.8rem,7vw,3rem); }
+.enemy-turn-screen > p { margin:0; color:#d7e5df; line-height:1.5; }
+.enemy-turn-rule { padding:13px 15px; display:grid; gap:4px; }
+.enemy-turn-rule strong { color:#ffe6a2; }
+.enemy-turn-rule p { margin:0; color:#d4e4de; font-size:.8rem; line-height:1.4; }
+@media (max-width:520px) {
+  .enemy-intent { grid-template-columns:36px minmax(0,1fr); }
+  .enemy-intent__avatar { width:36px; height:36px; }
+  .enemy-intent__stats { grid-column:1 / -1; grid-template-columns:1fr 1fr; text-align:left; padding-left:45px; }
+  .enemy-intent--compact { grid-template-columns:28px minmax(0,1fr); }
+  .enemy-intent--compact .enemy-intent__avatar { width:28px; height:28px; }
+  .enemy-intent--compact .enemy-intent__stats { display:none; }
+}
+@media (max-height:700px) and (max-width:900px) {
+  .enemy-turn-screen { min-height:auto; padding-block:8px 12px; gap:8px; }
+  .enemy-turn-screen h1 { font-size:1.45rem; }
+  .enemy-turn-rule { padding:8px 10px; }
+  .enemy-turn-rule p { font-size:.7rem; }
+}

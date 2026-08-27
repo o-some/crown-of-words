@@ -7,6 +7,8 @@ import { clearStandaloneSave, loadStandaloneSave, saveStandaloneSave } from './a
 import { createCardHand, deriveCardBonuses, resolveSelectedCard, selectCard } from './game/card-core.js';
 import { HELPER_DEFINITIONS, applyHelperEvent, createHelperState, selectHelper } from './game/helper-core.js';
 import { GARDEN_CARDS } from './content/garden-cards.js';
+import { createCampaignState, endPlayerRound, resolveEnemyRound } from './game/campaign-core.js';
+import { describeEnemyIntent } from './game/ai-director.js';
 
 const root = document.querySelector('#app');
 if (!root) throw new Error('Crown of Words mount point #app is missing.');
@@ -19,6 +21,7 @@ let state;
 let draggedTokenIndex = null;
 
 function freshState() {
+  const campaignAi = endPlayerRound(createCampaignState(808), { enemyIds: ['niko'] });
   return {
     screen: 'campaign',
     standard: createEncounter(GARDEN_STANDARD_CHALLENGES),
@@ -39,6 +42,10 @@ function freshState() {
     helperPressureReduction: 0,
     cardNotice: '',
     helperNotice: '',
+    campaignAi,
+    enemyIntent: campaignAi.enemyIntents[0] ?? null,
+    enemyTurnResolved: false,
+    enemyOutcomeNotice: '',
   };
 }
 
@@ -56,6 +63,10 @@ function resetStandard() {
   const helperStart = applyHelperEvent(state.helper, 'encounter-start', { regionId: 'garden' });
   state.helper = helperStart.state;
   if (helperStart.effect) state.helperNotice = helperStart.effect.label;
+  state.campaignAi = endPlayerRound(createCampaignState(808), { enemyIds: ['niko'] });
+  state.enemyIntent = state.campaignAi.enemyIntents[0] ?? null;
+  state.enemyTurnResolved = false;
+  state.enemyOutcomeNotice = '';
   state.screen = 'challenge';
   render();
 }
@@ -95,6 +106,10 @@ state.helper = state.helper ?? createHelperState('helper-meli-food');
 state.helperPressureReduction = Number(state.helperPressureReduction ?? 0);
 state.cardNotice = state.cardNotice ?? '';
 state.helperNotice = state.helperNotice ?? '';
+if (!state.campaignAi) state.campaignAi = endPlayerRound(createCampaignState(808), { enemyIds: ['niko'] });
+state.enemyIntent = state.enemyIntent ?? state.campaignAi.enemyIntents?.[0] ?? null;
+state.enemyTurnResolved = Boolean(state.enemyTurnResolved);
+state.enemyOutcomeNotice = state.enemyOutcomeNotice ?? '';
 
 function shell(content, { world = false } = {}) {
   const overlay = state.paused
@@ -175,6 +190,23 @@ function cardHandHTML({ compact = false } = {}) {
   </section>`;
 }
 
+function districtTitle(districtId) {
+  const labels = { 'garden:dock': 'Anlegestelle', 'garden:learning': 'Gartenhaus', 'garden:village': 'Dorf', 'garden:arena': 'Turnier', 'garden:boss': 'Kais Festung' };
+  return labels[districtId] ?? districtId;
+}
+
+function enemyIntentHTML({ compact = false } = {}) {
+  const intent = state.enemyIntent;
+  if (!intent) return '';
+  const info = describeEnemyIntent(intent);
+  const target = state.campaignAi?.districts?.[intent.targetId] ?? {};
+  const resolved = state.enemyTurnResolved;
+  return `<section class="enemy-intent ${compact ? 'enemy-intent--compact' : ''} ${resolved ? 'enemy-intent--resolved' : ''}" data-testid="enemy-intent" aria-label="Gegnerabsicht ${info.enemyName}">
+    <div class="enemy-intent__avatar" aria-hidden="true">${info.enemyName.slice(0, 1)}</div>
+    <div class="enemy-intent__copy"><span class="eyebrow">${resolved ? 'Ausgeführt' : 'Sichtbarer Intent'}</span><strong>${info.enemyName} · ${info.role}</strong><p>${info.actionLabel}: <b>${districtTitle(info.targetId)}</b>${info.secondaryTargetId ? ` / ${districtTitle(info.secondaryTargetId)}` : ''}</p></div>
+    <div class="enemy-intent__stats"><span>Versorgung <b>${Number(target.supply ?? 0)}/5</b></span><span>Verteidigung <b>${Number(target.fortification ?? 0)}/3</b></span></div>
+  </section>`;
+}
 function renderGarden() {
   root.innerHTML = shell(`
     <section class="region-view" data-testid="garden-screen">
@@ -199,6 +231,7 @@ function renderGarden() {
           <h2>Die Anlegestelle zurückholen</h2>
           <p>Fünf Aufgaben. Die letzte ist eine Crown Sentence. Deine Lernleistung entscheidet über den Sieg.</p>
         </div>
+        ${enemyIntentHTML()}
         ${helperPickerHTML()}
         <div class="loadout-block"><div class="loadout-block__head"><span class="eyebrow">Vier-Karten-Hand</span><strong>Sprache schaltet Taktik frei</strong></div>${cardHandHTML()}</div>
         <button class="primary-button" data-action="start-standard" data-testid="start-standard">Mit diesem Team starten</button>
@@ -271,6 +304,8 @@ function renderStandardChallenge() {
     <section class="challenge-stage" data-testid="standard-challenge">
       ${progressHTML(state.standard, state.standardIndex + 1, GARDEN_STANDARD_CHALLENGES.length)}
       ${cardHandHTML({ compact: true })}
+      ${enemyIntentHTML({ compact: true })}
+      ${state.enemyOutcomeNotice ? `<p class="enemy-outcome" role="status">${state.enemyOutcomeNotice}</p>` : ''}
       <div class="challenge-card glass-card ${challenge.crown ? 'challenge-card--crown' : ''}">
         <div class="challenge-card__guide"><img src="${asset('tula/tula-happy.webp')}" alt="Tula" /></div>
         <span class="eyebrow">${challenge.crown ? 'Crown Sentence' : 'Übersetze ins Englische'}</span>
@@ -283,9 +318,24 @@ function renderStandardChallenge() {
   `, { world: true });
 }
 
+function renderEnemyTurn() {
+  const intent = state.enemyIntent;
+  const info = intent ? describeEnemyIntent(intent) : null;
+  root.innerHTML = shell(`
+    <section class="enemy-turn-screen" data-testid="enemy-turn-screen">
+      <span class="eyebrow">Gegnerzug · Runde ${state.campaignAi?.round ?? 1}</span>
+      <h1>${info ? `${info.enemyName} ist dran` : 'Gegnerzug'}</h1>
+      <p>Die Absicht wurde schon vor deinen Aufgaben gezeigt. Erst jetzt wird sie sichtbar aufgelöst.</p>
+      ${enemyIntentHTML()}
+      <div class="enemy-turn-rule glass-card"><strong>Fairness-Regel</strong><p>Maximal eine Hauptaktion pro Gegner. Keine zukünftigen Antworten, kein heimlicher Zug und keine Gebietsübernahme während du offline bist.</p></div>
+      <button class="primary-button" data-action="resolve-enemy-turn" data-testid="resolve-enemy-turn">Nikos Zug ansehen</button>
+    </section>
+  `, { world: true });
+}
 function renderStandardResult() {
   const bonuses = deriveCardBonuses(state.cardHand);
-  const enemyPressure = Math.max(0, 1 - bonuses.pressureReduction - state.helperPressureReduction);
+  const campaignPressure = Math.min(2, Number(state.campaignAi?.supplyPressure?.garden ?? 0) + (state.campaignAi?.blockades?.some((entry) => entry.regionId === 'garden') ? 1 : 0));
+  const enemyPressure = Math.max(0, 1 + campaignPressure - bonuses.pressureReduction - state.helperPressureReduction);
   const result = resolveStandardEncounter(state.standard, { tacticPower: bonuses.tacticPower, enemyPressure });
   root.innerHTML = shell(`
     <section class="result-screen ${result.won ? 'result-screen--win' : ''}" data-testid="standard-result">
@@ -411,6 +461,7 @@ function render() {
     case 'campaign': renderCampaign(); break;
     case 'garden': renderGarden(); break;
     case 'challenge': renderStandardChallenge(); break;
+    case 'enemy-turn': renderEnemyTurn(); break;
     case 'standard-result': renderStandardResult(); break;
     case 'boss-intro': renderBossIntro(); break;
     case 'boss': renderBoss(); break;
@@ -528,9 +579,22 @@ root.addEventListener('click', (event) => {
       state.cardNotice = '';
       state.helperNotice = '';
       state.standardIndex += 1;
-      state.screen = state.standard.completed ? 'standard-result' : 'challenge';
+      if (state.standard.completed) state.screen = 'standard-result';
+      else if (state.standardIndex === 2 && !state.enemyTurnResolved) state.screen = 'enemy-turn';
+      else state.screen = 'challenge';
       render();
       break;
+    case 'resolve-enemy-turn': {
+      const intent = state.enemyIntent;
+      state.campaignAi = resolveEnemyRound(state.campaignAi);
+      state.enemyTurnResolved = true;
+      state.enemyOutcomeNotice = intent?.type === 'scout'
+        ? `Niko hat ${districtTitle(intent.targetId)} ausgekundschaftet. Deine Sprachaufgaben bleiben unverändert.`
+        : `Nikos angekündigte Aktion wurde sichtbar ausgeführt. Deine Sprachaufgaben bleiben unverändert.`;
+      state.screen = 'challenge';
+      render();
+      break;
+    }
     case 'boss-intro': state.screen = 'boss-intro'; render(); break;
     case 'start-boss': resetBoss(); break;
     case 'next-boss':
