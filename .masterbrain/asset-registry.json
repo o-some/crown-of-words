@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Tula's Island – Crown of Words",
-  "branch": "branch-5-garden-kai-vertical-slice",
+  "branch": "branch-7-cards-helpers",
   "sourceRepository": {
     "repository": "o-some/tulasisland",
     "commit": "cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0"
@@ -96,6 +96,58 @@
       "sha256": "fce8d03941551ae8f9f8387d183cdfad2e963300d0497f2f96d369e0d2c46fbe",
       "transparent": true,
       "note": "Original transparent Dropbox sprite imported byte-preserving. Dropbox content hash and normal SHA-256 are recorded separately."
+    },
+    {
+      "id": "helper-meli-food",
+      "kind": "helper",
+      "status": "ready",
+      "runtimePath": "public/assets/helpers/meli.webp",
+      "sourceRepository": "o-some/wordbound-battle",
+      "sourceCommit": "81d3f0461d16bf67d4fe80f73fe473ace1f20bbe",
+      "sourceRepoPath": "src/assets/helpers/meli.webp",
+      "sourceRepoBlob": "0702eb56dff70a0acdcfeeb0ed306cb547fe2577",
+      "dropboxManifest": "/[LinguaTurtle]/[Gehilfen]/SPRITE_MANIFEST.md",
+      "size": 8538,
+      "sha256": "2cb5e6ae07914f9bccdc7854ae4309c1a1f4da4ef35e630066c423b9eb9165ed"
+    },
+    {
+      "id": "helper-neri-nature",
+      "kind": "helper",
+      "status": "ready",
+      "runtimePath": "public/assets/helpers/neri.webp",
+      "sourceRepository": "o-some/wordbound-battle",
+      "sourceCommit": "81d3f0461d16bf67d4fe80f73fe473ace1f20bbe",
+      "sourceRepoPath": "src/assets/helpers/neri.webp",
+      "sourceRepoBlob": "de74841ea826b99c5ea4c229c0897e3dab75e013",
+      "dropboxManifest": "/[LinguaTurtle]/[Gehilfen]/SPRITE_MANIFEST.md",
+      "size": 11600,
+      "sha256": "7e076e789755677108eff80b222c416a75a4791ddd4206b7cfb2dc798a629ac4"
+    },
+    {
+      "id": "helper-skippi-travel",
+      "kind": "helper",
+      "status": "ready",
+      "runtimePath": "public/assets/helpers/skippi.webp",
+      "sourceRepository": "o-some/wordbound-battle",
+      "sourceCommit": "81d3f0461d16bf67d4fe80f73fe473ace1f20bbe",
+      "sourceRepoPath": "src/assets/helpers/skippi.webp",
+      "sourceRepoBlob": "03ac5b910271e9a7875ea2becab9b4f7099b2072",
+      "dropboxManifest": "/[LinguaTurtle]/[Gehilfen]/SPRITE_MANIFEST.md",
+      "size": 12372,
+      "sha256": "bc685b65e5fe88bfe02c00551961cccc94dfbe82231d17ce97a191ae445e6187"
+    },
+    {
+      "id": "helper-fino-home",
+      "kind": "helper",
+      "status": "ready",
+      "runtimePath": "public/assets/helpers/fino.webp",
+      "sourceRepository": "o-some/wordbound-battle",
+      "sourceCommit": "81d3f0461d16bf67d4fe80f73fe473ace1f20bbe",
+      "sourceRepoPath": "src/assets/helpers/fino.webp",
+      "sourceRepoBlob": "7a190732f7ae251391397d4f29fc338998b830f9",
+      "dropboxManifest": "/[LinguaTurtle]/[Gehilfen]/SPRITE_MANIFEST.md",
+      "size": 11324,
+      "sha256": "3c342060fb7e88bbfb0f55febea9c63ed7255bd56a947927db8b4114d1720ef7"
     }
   ]
 }
