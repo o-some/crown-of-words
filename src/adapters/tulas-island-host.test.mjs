@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createStableEventId, createTulasIslandHostAdapter } from './tulas-island-host.js';
 
-function makeHost({ guest = false } = {}) {
+function makeHost({ guest = false, failEconomy = false } = {}) {
   let state = {
     route: { name: 'game', params: { id: 'crown-of-words' } },
     progress: { xp: 10, shells: 150, stars: {}, mastery: {} },
@@ -16,6 +16,7 @@ function makeHost({ guest = false } = {}) {
       getState: () => state,
       setState: updater => { state = updater(structuredClone(state)); return state; },
       creditGameplayShells: async (amount, reason, eventId) => {
+        if (failEconomy) throw new Error('offline');
         if (guest) return null;
         if (!rewards.some(item => item.eventId === eventId)) rewards.push({ amount, reason, eventId });
         return true;
@@ -66,6 +67,18 @@ test('guest host receives local shells exactly once when economy boundary return
   assert.equal(host.state.progress.shells, 250);
   assert.equal(host.state.progress.xp, 260);
   assert.equal(host.rewards.length, 0);
+});
+
+test('economy failure is retryable and does not partially commit progress', async () => {
+  const host = makeHost({ failEconomy: true });
+  const adapter = createTulasIslandHostAdapter(host.capabilities);
+  const eventId = createStableEventId('campaign-clear', 'retry-case');
+  const result = await adapter.commitProgressEvent({ eventId, kind: 'campaign', regionId: 'crown-castle', xp: 250, shells: 100, stars: 3, mastery: 1 });
+  assert.equal(result.ok, false);
+  assert.equal(result.retryable, true);
+  assert.equal(host.state.progress.xp, 10);
+  assert.equal(host.state.progress.shells, 150);
+  assert.equal(adapter.getIntegrationState().committedEventIds?.includes(eventId) ?? false, false);
 });
 
 test('replay can improve stars/mastery without duplicating first-loot event', async () => {
