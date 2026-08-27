@@ -1,5 +1,5 @@
 name: Branch 11 Browser Playtest
-# trigger full finale evidence
+# rerun full finale evidence after presentation-safe assertion
 on:
   push:
     branches: [branch-11-harbor-castle-finale]
