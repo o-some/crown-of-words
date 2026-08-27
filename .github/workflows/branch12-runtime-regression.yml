@@ -1,4 +1,5 @@
 name: Branch 12 Runtime Regression
+# trigger standalone adapter regression
 on:
   push:
     branches: [branch-12-host-integration]
