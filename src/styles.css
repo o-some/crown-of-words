@@ -323,3 +323,6 @@ img { display: block; max-width: 100%; }
   .enemy-turn-rule { padding:8px 10px; }
   .enemy-turn-rule p { font-size:.7rem; }
 }
+
+/* Branch 9 – Regions 2–4 */
+.region24-launches{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.region24-launches button{display:grid;gap:2px;text-align:left;padding:10px;border-radius:14px;border:1px solid rgb(255 255 255 / 18%);background:rgb(8 52 72 / 72%);color:#fff;cursor:pointer}.region24-launches span{font-size:.66rem;opacity:.78}.regional-enemy,.regional-telegraph{padding:9px 11px;border-radius:14px;background:rgb(8 52 72 / 62%);border:1px solid rgb(255 211 112 / 24%);display:grid;gap:2px}.regional-enemy span,.regional-telegraph{font-size:.72rem}.boss-intro__art img,.boss-mini img{object-fit:contain}@media(max-width:600px){.region24-launches{grid-template-columns:1fr}.region24-launches button{padding:8px 10px}}

@@ -9,6 +9,8 @@ import { HELPER_DEFINITIONS, applyHelperEvent, createHelperState, selectHelper }
 import { GARDEN_CARDS } from './content/garden-cards.js';
 import { createCampaignState, endPlayerRound, resolveEnemyRound } from './game/campaign-core.js';
 import { describeEnemyIntent } from './game/ai-director.js';
+import { getRegion24 } from './content/regions-2-4.js';
+import { answerRegion24, createRegion24Session, currentRegion24Challenge, finishRegion24Boss, finishRegion24Standard, region24BossTelegraph, startRegion24Boss } from './game/region24-session.js';
 
 const root = document.querySelector('#app');
 if (!root) throw new Error('Crown of Words mount point #app is missing.');
@@ -46,6 +48,9 @@ function freshState() {
     enemyIntent: campaignAi.enemyIntents[0] ?? null,
     enemyTurnResolved: false,
     enemyOutcomeNotice: '',
+    region24Session: null,
+    region24Feedback: null,
+    region24BuiltTokens: [],
   };
 }
 
@@ -110,6 +115,9 @@ if (!state.campaignAi) state.campaignAi = endPlayerRound(createCampaignState(808
 state.enemyIntent = state.enemyIntent ?? state.campaignAi.enemyIntents?.[0] ?? null;
 state.enemyTurnResolved = Boolean(state.enemyTurnResolved);
 state.enemyOutcomeNotice = state.enemyOutcomeNotice ?? '';
+state.region24Session = state.region24Session ?? null;
+state.region24Feedback = state.region24Feedback ?? null;
+state.region24BuiltTokens = state.region24BuiltTokens ?? [];
 
 function shell(content, { world = false } = {}) {
   const overlay = state.paused
@@ -153,6 +161,11 @@ function renderCampaign() {
           <p>„Wörter geben unserer Flotte Kraft. Ohne Sprache gewinnen wir kein Gebiet!“</p>
         </div>
         <button class="primary-button" data-action="open-garden">Garten erkunden</button>
+        <div class="region24-launches" data-testid="region24-launches">
+          <button data-region24="library"><b>2 · Bibliothek</b><span>Brax · Satzgrundlagen</span></button>
+          <button data-region24="wildlife"><b>3 · Tierwelt</b><span>Blackfinn · Tiere & Vergleiche</span></button>
+          <button data-region24="home"><b>4 · Zuhause</b><span>Roderick · Präpositionen</span></button>
+        </div>
       </section>
     </section>
   `);
@@ -207,6 +220,16 @@ function enemyIntentHTML({ compact = false } = {}) {
     <div class="enemy-intent__stats"><span>Versorgung <b>${Number(target.supply ?? 0)}/5</b></span><span>Verteidigung <b>${Number(target.fortification ?? 0)}/3</b></span></div>
   </section>`;
 }
+
+function region24AnswerArea(challenge){
+ if(challenge.type==='sentence') return `<div class="sentence-builder"><div class="sentence-builder__zone">${state.region24BuiltTokens.length?state.region24BuiltTokens.map((t,i)=>`<button data-region24-remove="${i}">${t}</button>`).join(''):'Tippe die Wörter in Reihenfolge an.'}</div><div class="token-bank">${challenge.tokens.map((t,i)=>`<button class="token" data-region24-token="${i}" ${state.region24BuiltTokens.includes(t)?'disabled':''}>${t}</button>`).join('')}</div><button class="primary-button" data-action="region24-submit-sentence" ${state.region24BuiltTokens.length!==challenge.tokens.length?'disabled':''}>Satz prüfen</button></div>`;
+ return `<div class="answer-grid">${challenge.answers.map(a=>`<button class="answer-button" data-region24-answer="${a.replaceAll('"','&quot;')}">${a}</button>`).join('')}</div>`;
+}
+function renderRegion24(){const s=state.region24Session,r=getRegion24(s.regionId);root.innerHTML=shell(`<section class="region-view" data-testid="region24-screen"><div class="world-hero" style="--world-image:url('${asset(r.worldAsset)}')"><div class="world-hero__shade"></div><div class="world-hero__title"><span class="eyebrow">Region ${r.order}</span><h1>${r.name}</h1><p>Deutsch → Englisch · ${r.focus}</p></div><div class="district-track">${r.districts.map((d,i)=>`<div class="district ${i===0?'district--active':''} ${i===4?'district--boss':''}"><b>${i+1}</b><span>${d}</span></div>`).join('')}</div></div><section class="mission-card glass-card"><span class="eyebrow">Strategiebonus · ${r.strategicBonus}</span><h2>${r.name} zurückholen</h2><p>Fünf Sprachaufgaben führen zum regionalen Boss. Lernleistung bleibt die Hauptbedingung.</p><div class="regional-enemy"><strong>Wache: ${r.enemyId.toUpperCase()}</strong><span>sichtbarer regionaler Gegner · keine Offline-Züge</span></div><button class="primary-button" data-action="region24-start">Mission starten</button><button class="text-button" data-action="campaign">Zur Inselkarte</button></section></section>`,{world:true})}
+function renderRegion24Challenge(){const s=state.region24Session,r=getRegion24(s.regionId),c=currentRegion24Challenge(s);if(state.region24Feedback){root.innerHTML=shell(`<section class="challenge-stage challenge-stage--feedback"><section class="feedback ${state.region24Feedback.correct?'feedback--correct':'feedback--wrong'}"><strong>${state.region24Feedback.correct?'Richtig!':'Noch nicht.'}</strong><p>${state.region24Feedback.correct?'+3 Wortkraft':`Richtig wäre: ${state.region24Feedback.expected}`}</p><button class="primary-button" data-action="region24-next">Weiter</button></section></section>`,{world:true});return;}if(!c){const res=finishRegion24Standard(s);state.region24Session=res.state;root.innerHTML=shell(`<section class="result-screen ${res.won?'result-screen--win':''}" data-testid="region24-standard-result"><span class="eyebrow">${r.name}</span><h1>${res.won?'Vorbezirke gewonnen!':'Übungsreise empfohlen'}</h1><p>${res.score} Wortkraft · mindestens drei gelöste Aufgaben und die Crown Sentence sind Pflicht.</p><button class="primary-button" data-action="${res.won?'region24-boss-intro':'region24-retry'}">${res.won?'Zu '+r.bossName:'Nochmal versuchen'}</button></section>`);return;}root.innerHTML=shell(`<section class="challenge-stage" data-testid="region24-challenge"><div class="challenge-progress"><div class="challenge-progress__meta"><span>Aufgabe ${s.index+1}/${r.standard.length}</span><strong>Wortkraft ${s.wordPower}</strong></div></div><div class="challenge-card glass-card ${c.type==='sentence'?'challenge-card--crown':''}"><span class="eyebrow">${c.type==='sentence'?'Crown Sentence':r.name+' · Übersetzung'}</span><h2>${c.prompt}</h2>${region24AnswerArea(c)}</div></section>`,{world:true})}
+function renderRegion24BossIntro(){const s=state.region24Session,r=getRegion24(s.regionId),t=region24BossTelegraph(s);root.innerHTML=shell(`<section class="boss-intro" data-testid="region24-boss-intro"><div class="boss-intro__art"><div class="boss-aura"></div><img src="${asset(r.bossAsset)}" alt="${r.bossName}" /></div><div class="boss-intro__card glass-card"><span class="eyebrow">Level ${r.order} · ${r.name}</span><h1>${r.bossName}</h1><h2>${t.label}</h2><p>${t.detail}</p><button class="primary-button" data-action="region24-boss-start">Verstanden · Duell starten</button></div></section>`,{world:true})}
+function renderRegion24Boss(){const s=state.region24Session,r=getRegion24(s.regionId),c=currentRegion24Challenge(s),t=region24BossTelegraph(s);if(state.region24Feedback){root.innerHTML=shell(`<section class="boss-stage boss-stage--feedback"><div class="boss-mini"><img src="${asset(r.bossAsset)}" alt="${r.bossName}"/><div><strong>${r.bossName}</strong><span>HP ${s.bossHp}/3</span></div></div><p class="regional-telegraph"><b>${t.label}</b> · ${t.detail}</p><section class="feedback ${state.region24Feedback.correct?'feedback--correct':'feedback--wrong'}"><strong>${state.region24Feedback.correct?'Richtig!':'Noch nicht.'}</strong><p>${state.region24Feedback.correct?'+3 Wortkraft':`Richtig wäre: ${state.region24Feedback.expected}`}</p><button class="primary-button" data-action="region24-boss-next">Weiter</button></section></section>`,{world:true});return;}if(!c){const res=finishRegion24Boss(s);root.innerHTML=shell(`<section class="result-screen ${res.won?'result-screen--win':''}" data-testid="region24-boss-result"><img class="result-screen__tula" src="${asset('tula/tula-happy.webp')}" alt="Tula"/><span class="eyebrow">Kronensiegel ${r.order} von 10</span><h1>${res.won?r.name+' befreit!':'Revanche!'}</h1><p>${res.won?r.bossName+' wurde mit Sprache besiegt.':'Lernfortschritt bleibt erhalten. Die finale Bossaufgabe muss korrekt sein.'}</p><button class="primary-button" data-action="campaign">Zur Kampagnenkarte</button></section>`);return;}root.innerHTML=shell(`<section class="boss-stage" data-testid="region24-boss"><div class="boss-status"><div class="boss-mini"><img src="${asset(r.bossAsset)}" alt="${r.bossName}"/><div><strong>Lv. ${r.order} · ${r.bossName}</strong><span>${t.label}</span></div></div><div class="boss-hp"><span style="width:${s.bossHp*33.33}%"></span></div></div><p class="regional-telegraph"><b>Sichtbar angekündigt:</b> ${t.detail}</p><div class="challenge-card glass-card"><h2>${c.prompt}</h2>${region24AnswerArea(c)}</div></section>`,{world:true})}
+
 function renderGarden() {
   root.innerHTML = shell(`
     <section class="region-view" data-testid="garden-screen">
@@ -460,6 +483,10 @@ function render() {
   switch (state.screen) {
     case 'campaign': renderCampaign(); break;
     case 'garden': renderGarden(); break;
+    case 'region24': renderRegion24(); break;
+    case 'region24-challenge': renderRegion24Challenge(); break;
+    case 'region24-boss-intro': renderRegion24BossIntro(); break;
+    case 'region24-boss': renderRegion24Boss(); break;
     case 'challenge': renderStandardChallenge(); break;
     case 'enemy-turn': renderEnemyTurn(); break;
     case 'standard-result': renderStandardResult(); break;
@@ -520,6 +547,11 @@ root.addEventListener('click', (event) => {
   const target = event.target.closest('button');
   if (!target) return;
 
+  if (target.dataset.region24) { state.region24Session=createRegion24Session(target.dataset.region24); state.region24Feedback=null; state.region24BuiltTokens=[]; state.screen='region24'; render(); return; }
+  if (target.dataset.region24Answer != null) { const out=answerRegion24(state.region24Session,target.dataset.region24Answer); state.region24Session=out.state; state.region24Feedback=out.result; render(); return; }
+  if (target.dataset.region24Token != null) { const c=currentRegion24Challenge(state.region24Session); const t=c.tokens[Number(target.dataset.region24Token)]; if(!state.region24BuiltTokens.includes(t))state.region24BuiltTokens.push(t); render(); return; }
+  if (target.dataset.region24Remove != null) { state.region24BuiltTokens.splice(Number(target.dataset.region24Remove),1); render(); return; }
+
   if (target.dataset.helperId) {
     state.helper = selectHelper(state.helper, target.dataset.helperId);
     state.helperNotice = '';
@@ -568,6 +600,13 @@ root.addEventListener('click', (event) => {
     case 'help': state.helpOpen = true; state.paused = false; render(); break;
     case 'close-help': state.helpOpen = false; render(); break;
     case 'open-garden': state.screen = 'garden'; render(); break;
+    case 'region24-start': state.screen='region24-challenge'; render(); break;
+    case 'region24-submit-sentence': { const out=answerRegion24(state.region24Session,state.region24BuiltTokens); state.region24Session=out.state; state.region24Feedback=out.result; state.region24BuiltTokens=[]; render(); break; }
+    case 'region24-next': state.region24Feedback=null; state.region24BuiltTokens=[]; render(); break;
+    case 'region24-retry': state.region24Session=createRegion24Session(state.region24Session.regionId); state.region24Feedback=null; state.region24BuiltTokens=[]; state.screen='region24-challenge'; render(); break;
+    case 'region24-boss-intro': state.screen='region24-boss-intro'; render(); break;
+    case 'region24-boss-start': state.region24Session=startRegion24Boss(state.region24Session); state.region24Feedback=null; state.region24BuiltTokens=[]; state.screen='region24-boss'; render(); break;
+    case 'region24-boss-next': state.region24Feedback=null; state.region24BuiltTokens=[]; render(); break;
     case 'campaign': state.screen = 'campaign'; render(); break;
     case 'start-standard': resetStandard(); break;
     case 'retry-standard': resetStandard(); break;
