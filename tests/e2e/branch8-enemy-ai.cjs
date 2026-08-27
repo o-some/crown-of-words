@@ -78,7 +78,7 @@ async function run(browser, viewport) {
 
   await page.getByTestId('enemy-turn-screen').waitFor();
   let turnText = await page.getByTestId('enemy-turn-screen').innerText();
-  assert(turnText.includes('Gegnerzug · Runde 1'), `${viewport.name}: wrong enemy round before resolution`);
+  assert(normalized(turnText).includes('gegnerzug · runde 1'), `${viewport.name}: wrong enemy round before resolution`);
   assert(turnText.includes('Niko ist dran'), `${viewport.name}: explicit Niko turn missing`);
   assert(turnText.includes('Keine zukünftigen Antworten'), `${viewport.name}: fairness contract not visible`);
   await assertNoOverflow(page, `${viewport.name}/enemy-turn`);
@@ -87,7 +87,7 @@ async function run(browser, viewport) {
   await page.reload({ waitUntil: 'networkidle' });
   await page.getByTestId('enemy-turn-screen').waitFor();
   turnText = await page.getByTestId('enemy-turn-screen').innerText();
-  assert(turnText.includes('Gegnerzug · Runde 1'), `${viewport.name}: reload advanced enemy turn/offline state`);
+  assert(normalized(turnText).includes('gegnerzug · runde 1'), `${viewport.name}: reload advanced enemy turn/offline state`);
   assert(turnText.includes('Niko ist dran'), `${viewport.name}: reload changed enemy identity`);
 
   await page.getByTestId('resolve-enemy-turn').click();
