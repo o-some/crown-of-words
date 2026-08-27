@@ -69,15 +69,18 @@ export function createTulasIslandHostAdapter(capabilities) {
     const mastery = Math.max(0, Math.min(1, Number(event.mastery ?? 0)));
     const regionId = String(event.regionId || 'campaign');
 
-    // Wallet credit goes through the host economy boundary. Its event id is stable,
-    // so a retry is idempotent on the server ledger.
+    let walletHandledByEconomy = true;
     if (shells > 0) {
-      await creditGameplayShells(shells, `crown-${event.kind || 'learning'}`, eventId);
+      const economyResult = await creditGameplayShells(shells, `crown-${event.kind || 'learning'}`, eventId);
+      walletHandledByEconomy = economyResult !== null;
     }
 
     setState(draft => {
       draft.progress ??= {};
       draft.progress.xp = safeInt(draft.progress.xp) + xp;
+      if (shells > 0 && !walletHandledByEconomy) {
+        draft.progress.shells = safeInt(draft.progress.shells) + shells;
+      }
       draft.progress.stars ??= {};
       draft.progress.mastery ??= {};
       if (stars > 0) draft.progress.stars[`${GAME_ID}:${regionId}`] = Math.max(safeInt(draft.progress.stars[`${GAME_ID}:${regionId}`]), stars);
@@ -93,7 +96,7 @@ export function createTulasIslandHostAdapter(capabilities) {
       return draft;
     });
 
-    return { ok: true, duplicate: false, eventId, xp, shells, stars, mastery };
+    return { ok: true, duplicate: false, eventId, xp, shells, stars, mastery, walletHandledByEconomy };
   }
 
   function exitGame() {
