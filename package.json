@@ -7,13 +7,15 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check:syntax": "node --check src/main.js && node --check src/game/campaign-data.js && node --check src/game/campaign-core.js && node --check src/game/learning-core.js && node --check src/game/kai-core.js && node --check src/game/save-contract.js && node --check src/adapters/standalone-storage.js && node --check src/content/garden-content.js && node --check scripts/check-assets.mjs && node --check tests/e2e/branch5-playtest.cjs && node --check tests/e2e/branch6-playbrain-gate.cjs",
+    "check:syntax": "node --check src/main.js && node --check src/game/campaign-data.js && node --check src/game/campaign-core.js && node --check src/game/learning-core.js && node --check src/game/kai-core.js && node --check src/game/save-contract.js && node --check src/game/card-core.js && node --check src/game/helper-core.js && node --check src/adapters/standalone-storage.js && node --check src/content/garden-content.js && node --check src/content/garden-cards.js && node --check scripts/check-assets.mjs && node --check tests/e2e/branch5-playtest.cjs && node --check tests/e2e/branch6-playbrain-gate.cjs",
     "check:assets": "node scripts/check-assets.mjs",
     "test:campaign": "node --test src/game/campaign-core.test.mjs",
     "test:learning": "node --test src/game/learning-core.test.mjs",
     "test:kai": "node --test src/game/kai-core.test.mjs",
     "test:save": "node --test src/game/save-contract.test.mjs",
-    "test": "npm run check:syntax && npm run check:assets && npm run test:campaign && npm run test:learning && npm run test:kai && npm run test:save && npm run build"
+    "test:cards": "node --test src/game/card-core.test.mjs",
+    "test:helpers": "node --test src/game/helper-core.test.mjs",
+    "test": "npm run check:syntax && npm run check:assets && npm run test:campaign && npm run test:learning && npm run test:kai && npm run test:save && npm run test:cards && npm run test:helpers && npm run build"
   },
   "devDependencies": {
     "vite": "8.2.0"
