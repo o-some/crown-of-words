@@ -1,4 +1,5 @@
 name: Branch 6 Gate Fixes
+# second commit triggers the feature-branch workflow after registration
 on:
   push:
     branches:
