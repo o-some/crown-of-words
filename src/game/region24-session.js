@@ -23,7 +23,11 @@ export function answerRegion24(session,answer){
  }
  return {state:next,result:{correct,expected,power:correct?3:0,challengeId:challenge.id}};
 }
-export function finishRegion24Standard(session){const next=structuredClone(session);const region=getRegion24(next.regionId);const crown=next.answers[region.standard.at(-1).id];return {state:next,won:next.solved>=3&&Boolean(crown?.correct),score:next.wordPower};}
+export function finishRegion24Standard(session){
+ const next=structuredClone(session), region=getRegion24(next.regionId), crown=next.answers[region.standard.at(-1).id];
+ if(next.regionId==='home') next.bossMechanic=createRoderickState(next.errorConcepts);
+ return {state:next,won:next.solved>=3&&Boolean(crown?.correct),score:next.wordPower};
+}
 export function startRegion24Boss(session){const next=structuredClone(session);next.phase='boss';next.bossIndex=0;if(next.regionId==='home')next.bossMechanic=createRoderickState(next.errorConcepts);return next;}
 export function finishRegion24Boss(session){const next=structuredClone(session);const region=getRegion24(next.regionId);const crown=next.answers[region.boss.at(-1).id];const won=next.bossHp===0&&Boolean(crown?.correct);next.complete=won;return {state:next,won,score:next.wordPower};}
 export function region24BossTelegraph(session){return telegraphBoss(session.bossMechanic);}
