@@ -1,3 +1,5 @@
+import { REGIONS_5_8 } from './regions-5-8.js';
+
 export const REGIONS_2_4 = Object.freeze({
   library: {
     id: 'library', order: 2, name: 'Bibliothek', bossId: 'brax', bossName: 'Kapitän Brax', enemyId: 'lio',
@@ -55,4 +57,4 @@ export const REGIONS_2_4 = Object.freeze({
   },
 });
 
-export const getRegion24 = (id) => REGIONS_2_4[id] ?? null;
+export const getRegion24 = (id) => REGIONS_2_4[id] ?? REGIONS_5_8[id] ?? null;
