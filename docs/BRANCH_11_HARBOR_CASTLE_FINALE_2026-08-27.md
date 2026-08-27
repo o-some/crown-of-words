@@ -1,132 +1,33 @@
-# Branch 11 – Hafen, Schloss und Kampagnenfinale
+# Branch 11 – Hafen, Kronenschloss & Kampagnenfinale
 
-Stand: 27.08.2026
-Branch: `branch-11-harbor-castle-finale`
-Baseline: `e6ac1fd26fd95c0b8534d6466a2fc5cc82601527`
-Rollback: `rollback/branch-11-harbor-castle-e6ac1fd`
+Status: FUNCTIONALLY PASS / FINAL CLEANUP PENDING
 
-## Scope
+Dieser Abschlussbericht dokumentiert Branch 11. Der vollständige Gameplay- und Browser-Gate ist grün. Vor FINAL/PASS werden ausschließlich temporäre Branch-11-Hilfsworkflows und einmalige Patchskripte entfernt und der permanente CI auf dem bereinigten Abschluss-SHA erneut ausgeführt.
 
-Branch 11 erweitert Crown of Words ausschließlich um die letzten beiden Regionen und den Kampagnenabschluss:
+## Implementiert
+- Region 9: Hafen-Turnier mit Schattenfürst Azrak
+- Region 10: Kronenschloss mit Piratenkönig Varkos
+- Azrak: exakt ein persistenter, sichtbarer/enthüllbarer wandernder Schatten außerhalb des Sprachwahrheitsbereichs
+- Varkos: vier Phasen – sichtbarer Tausch, maximal zwei telegraphierte Gefahren, 3×3-Formation mit neuer Adjazenz, finale Crown Sentence
+- Falsche Varkos-Phasenantwort überspringt keine Phase
+- Kampagnensieg mit 10/10 Kronensiegeln
+- Victory-State wird vor dem Siegscreen persistiert und überlebt unmittelbaren Reload
+- Satzbuilder nutzt Token-Indizes und unterstützt doppelte Wörter korrekt
+- 29 verifizierte Runtimeassets
 
-- Region 9 – Hafen-Turnier – Schattenfürst Azrak
-- Region 10 – Kronenschloss – Piratenkönig Varkos
-- mehrphasiges Varkos-Finale
-- persistenter Kampagnensieg mit 10/10 Kronensiegeln
+## Verifikation
+- vollständiger Unit-/Contract-Testverbund PASS
+- Build PASS
+- Asset Integrity PASS (29 ready assets)
+- Branch-11-Finale-Browserplaytest PASS auf 375×667, 390×844, 430×932, 844×390 und 1440×900
+- Branch-10-Regression anschließend PASS
+- visuelle Evidence: kleines iPhone Azrak, Landscape Varkos Phase 2, Desktop Campaign Victory
 
-Host-Integration, Economy-Commit und Release-Hardening bleiben ausdrücklich Branch 12 bzw. Branch 13 vorbehalten.
+## Cleanup-Gate
+Für FINAL/PASS noch erforderlich:
+1. temporäre Branch-11-Hilfsworkflows entfernen
+2. einmalige Branch-11-Patchskripte entfernen
+3. permanenten normalen CI auf dem bereinigten SHA grün bestätigen
+4. `main` abschließend als unverändert gegenüber dem Branch-11-Ausgangspunkt bestätigen
 
-## Lernpfade
-
-Beide Regionen besitzen jeweils fünf regionale Lernaufgaben inklusive verpflichtender Crown Sentence. Der Bosssieg bleibt sprachlich gegatet; taktische Bossmechaniken verändern niemals die korrekte Sprachwahrheit.
-
-Das Kronenschloss erhöht die sprachliche Komplexität mit mehrteiligen Sätzen und Konnektoren wie `because`, `although`, `first/then` und `if`.
-
-## Schattenfürst Azrak – Wandernder Schatten
-
-- exakt ein persistenter Schattenmarker
-- deterministische Bewegung nach Auslösung
-- Schatten befindet sich in einem eigenen Taktikfeld und niemals über Sprachtext oder Primäraktion
-- richtige gemischte Hafenaufgabe kann den Schatten sichtbar enthüllen
-- Save-fähiger Zustand
-
-## Piratenkönig Varkos – Krone des Chaos
-
-Vier klar getrennte Phasen:
-
-1. **Tausch** – sichtbarer Auftragstausch; aktuelle Antwort bleibt unverändert.
-2. **Kette und Marker** – exakt zwei sichtbare Gefahren, bevor sie wirken.
-3. **Formation** – echte Verschiebung einer angekündigten 3×3-Reihe; Adjazenz wird danach neu berechnet.
-4. **Crown Sentence** – finale mehrteilige Sprachaufgabe ohne künstliche Zeitknappheit.
-
-Zusätzliche Fairnessregeln:
-
-- maximal zwei aktive Gefahren
-- Phasenwechsel nur nach korrekter Lösung der jeweiligen Phasenaufgabe
-- eine falsche Varkos-Antwort überspringt keine Phase
-- keine Bossmechanik darf die richtige Antwort verändern oder die Crown Sentence umgehen
-- Kampagnensieg erst bei korrekter finaler Crown Sentence
-
-## Assets
-
-Vier neue Runtimeassets wurden revisionsgepinnt aus bereits produktiv verwendeten Tula-Repositories übernommen.
-
-### Welten – `o-some/tulasisland@cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0`
-
-- `public/assets/worlds/world-harbor.webp` – 372646 Bytes – SHA-256 `db28d4b180aac22d36e49a35549faa3159917b42cafd26fe39c0253d768275d3`
-- `public/assets/worlds/world-castle.webp` – 324804 Bytes – SHA-256 `a119855af6b384aaa38829729cf5306c566bfaaecebb2c86511d7eb4ee993887`
-
-### Bosse – `o-some/word-scramble@ac594046c99ac63954164fe6da0a89ff92c29cf4`
-
-- `public/assets/bosses/boss-09-azrak.webp` – 284304 Bytes – SHA-256 `ce1cb05e061c5ee9bbfaaad177be69eb2fe8b56a64b8f43db58f777c2bb37299`
-- `public/assets/bosses/boss-10-varkos.webp` – 347868 Bytes – SHA-256 `2088bb64dcb552b8e709ca73985f4f3949719a572c41ecc089efec97472f3036`
-
-Die Asset-Registry umfasst damit 29 verifizierte Runtimeassets. Es gibt keine Runtime-Dropbox-Hotlinks.
-
-## Save / Reload
-
-Der finale Kampagnensieg wird unmittelbar vor dem Victory-Render in den bestehenden Standalone-Save-Vertrag geschrieben. Der Browser-Gate reloadet direkt auf dem Victory-Screen – ohne weiteren Klick – und erwartet weiterhin den Victory-Screen sowie `10 / 10`.
-
-## Automated Gates
-
-Der vollständige `npm test`-Verbund wurde vor dem Browser-Gate erfolgreich ausgeführt, einschließlich:
-
-- Syntax
-- 29 Asset-Hashes
-- Campaign Core
-- Enemy AI
-- Learning Core
-- Kai
-- Regionen 2–4
-- Regionen 5–8
-- Finale Core
-- Save / Reload
-- Cards
-- Helpers
-- Production Build
-
-Finale-Coretests decken zusätzlich ab:
-
-- Azraks exakt einen Schatten
-- Azrak Reveal
-- Varkos vier Phasen
-- maximal zwei Varkos-Gefahren
-- veränderte Grid-Adjazenz
-- Crown-Sentence-Pflicht
-- falsche Phasenantwort bleibt in derselben Varkos-Phase
-
-## Browser PlayBrain Gate
-
-Der komplette Pfad wurde auf folgenden Viewports gespielt:
-
-- 375 × 667
-- 390 × 844
-- 430 × 932
-- 844 × 390 Landscape
-- 1440 × 900 Desktop
-
-Pro Viewport:
-
-`Hafen → fünf Sprachaufgaben → Azrak → Schatten-Reveal → Azrak-Sieg → Schloss → fünf Sprachaufgaben → Varkos Phase 1 → absichtlich falsche Antwort ohne Phasensprung → Phase 1 korrekt → Phase 2 mit exakt zwei Gefahren → Phase 3 mit 3×3-Formation → Phase 4 → finale Crown Sentence → 10/10-Kampagnensieg → direkter Reload → Victory bleibt erhalten.`
-
-Danach lief zusätzlich der vollständige Branch-10-Pfad als Regression.
-
-## Visual Evidence
-
-Visuell geprüft:
-
-- 375 × 667 – Azrak-Intro: Boss, Schattenfeld, Text und Primärbutton vollständig sichtbar.
-- 844 × 390 – Varkos Phase 2: vier Phasen, exakt zwei Gefahren und Feedback ohne horizontales Overflow.
-- 1440 × 900 – Kampagnensieg: Tula, Krone, 10/10, Rewards und Hauptaktion sauber zentriert.
-
-Keine kritischen Überlagerungen, keine abgeschnittenen Hauptaktionen und kein horizontaler Body-Overflow festgestellt.
-
-## Tooling Notes
-
-Zwischenläufe mit temporären Import-/Patch-Workflows durften teilweise keine Workflowdatei aus GitHub Actions selbst aktualisieren. Bereits vollständig geprüfte Fast-Forward-Commits wurden deshalb über die normale GitHub-Anbindung übernommen. Es wurde kein Force-Push verwendet.
-
-Diese temporären Branch-11-Helfer werden vor dem finalen SHA wieder entfernt. Die dauerhaften Coretests, der Browser-Test und dieser Evidence-Bericht bleiben bestehen.
-
-## Ergebnis
-
-Branch 11 erfüllt nach Cleanup und finalem CI den vorgesehenen Scope für Hafen, Schloss und Kampagnenfinale. Ein Merge nach `main` oder ein Deployment ist nicht Bestandteil dieses Branches.
+Keine weiteren Gameplay-Änderungen sind vorgesehen.
