@@ -1,5 +1,5 @@
 name: Branch 11 Integration
-# trigger complete guarded integration
+# trigger corrected guarded integration
 on:
   push:
     branches: [branch-11-harbor-castle-finale]
@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: 24}
+      - run: node scripts/branch11-prep-patch.mjs
       - run: node scripts/branch11-integrate.mjs
       - run: npm run check:syntax
       - run: npm run check:assets
