@@ -1,5 +1,5 @@
 name: Branch 8 Browser Playtest
-# second commit triggers this feature-branch workflow after registration
+# rerun after presentation-safe intent assertion
 on:
   push:
     branches:
