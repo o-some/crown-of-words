@@ -1,0 +1,31 @@
+name: Branch 12 Host Regression
+on:
+  push:
+    branches: [branch-12-host-integration]
+    paths: ['.github/workflows/branch12-host-regression.yml']
+permissions:
+  contents: read
+jobs:
+  host-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Tulas Island pinned host
+        uses: actions/checkout@v4
+        with:
+          repository: o-some/tulasisland
+          ref: cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0
+          path: host
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: host/package-lock.json
+      - name: Install host dependencies
+        working-directory: host
+        run: npm ci --no-audit --no-fund
+      - name: Install host browser runtime
+        working-directory: host
+        run: npx playwright install chromium
+      - name: Run full Tulas Island regression suite
+        working-directory: host
+        run: npm test
