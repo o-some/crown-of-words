@@ -11,6 +11,8 @@ import { createCampaignState, endPlayerRound, resolveEnemyRound } from './game/c
 import { describeEnemyIntent } from './game/ai-director.js';
 import { getRegion24 } from './content/regions-2-4.js';
 import { answerRegion24, createRegion24Session, currentRegion24Challenge, finishRegion24Boss, finishRegion24Standard, region24BossTelegraph, startRegion24Boss } from './game/region24-session.js';
+import { getRegion910 } from './content/regions-9-10.js';
+import { answerFinale, createFinaleSession, currentFinaleChallenge, finishFinaleBoss, finishFinaleStandard, finaleBossTelegraph, startFinaleBoss } from './game/finale-session.js';
 
 const root = document.querySelector('#app');
 if (!root) throw new Error('Crown of Words mount point #app is missing.');
@@ -51,6 +53,10 @@ function freshState() {
     region24Session: null,
     region24Feedback: null,
     region24BuiltTokens: [],
+    finaleSession: null,
+    finaleFeedback: null,
+    finaleBuiltTokens: [],
+    campaignComplete: false,
   };
 }
 
@@ -118,6 +124,10 @@ state.enemyOutcomeNotice = state.enemyOutcomeNotice ?? '';
 state.region24Session = state.region24Session ?? null;
 state.region24Feedback = state.region24Feedback ?? null;
 state.region24BuiltTokens = state.region24BuiltTokens ?? [];
+state.finaleSession = state.finaleSession ?? null;
+state.finaleFeedback = state.finaleFeedback ?? null;
+state.finaleBuiltTokens = state.finaleBuiltTokens ?? [];
+state.campaignComplete = Boolean(state.campaignComplete);
 
 function shell(content, { world = false } = {}) {
   const overlay = state.paused
@@ -132,7 +142,7 @@ function shell(content, { world = false } = {}) {
           <span class="eyebrow">Tula's Island</span>
           <strong>Crown of Words</strong>
         </div>
-        <div class="topbar__tools"><button class="topbar__tool" data-action="help" aria-label="Hilfe öffnen">Hilfe</button><button class="topbar__tool" data-action="pause" aria-label="Spiel pausieren">Pause</button><div class="topbar__seal" aria-label="Kronensiegel 0 von 10">0 / 10</div></div>
+        <div class="topbar__tools"><button class="topbar__tool" data-action="help" aria-label="Hilfe öffnen">Hilfe</button><button class="topbar__tool" data-action="pause" aria-label="Spiel pausieren">Pause</button><div class="topbar__seal" aria-label="Kronensiegel ${state.campaignComplete ? '10' : '0'} von 10">${state.campaignComplete ? '10 / 10' : '0 / 10'}</div></div>
       </header>
       ${content}
       ${overlay}
@@ -169,6 +179,8 @@ function renderCampaign() {
           <button data-region24="body"><b>6 · Körper</b><span>Ironhook · Zustände & Modalverben</span></button>
           <button data-region24="travel"><b>7 · Unterwegs</b><span>Thorne · Reise & Richtungen</span></button>
           <button data-region24="movement"><b>8 · Bewegung</b><span>Corvin · Verben & Imperative</span></button>
+          <button data-finale-region="harbor"><b>9 · Hafen-Turnier</b><span>Azrak · gemischte Dialoge</span></button>
+          <button data-finale-region="crown-castle"><b>10 · Kronenschloss</b><span>Varkos · Krone des Chaos</span></button>
         </div>
       </section>
     </section>
@@ -241,6 +253,24 @@ function renderRegion24(){const s=state.region24Session,r=getRegion24(s.regionId
 function renderRegion24Challenge(){const s=state.region24Session,r=getRegion24(s.regionId),c=currentRegion24Challenge(s);if(state.region24Feedback){root.innerHTML=shell(`<section class="challenge-stage challenge-stage--feedback"><section class="feedback ${state.region24Feedback.correct?'feedback--correct':'feedback--wrong'}"><strong>${state.region24Feedback.correct?'Richtig!':'Noch nicht.'}</strong><p>${state.region24Feedback.correct?'+3 Wortkraft':`Richtig wäre: ${state.region24Feedback.expected}`}</p><button class="primary-button" data-action="region24-next">Weiter</button></section></section>`,{world:true});return;}if(!c){const res=finishRegion24Standard(s);state.region24Session=res.state;root.innerHTML=shell(`<section class="result-screen ${res.won?'result-screen--win':''}" data-testid="region24-standard-result"><span class="eyebrow">${r.name}</span><h1>${res.won?'Vorbezirke gewonnen!':'Übungsreise empfohlen'}</h1><p>${res.score} Wortkraft · mindestens drei gelöste Aufgaben und die Crown Sentence sind Pflicht.</p><button class="primary-button" data-action="${res.won?'region24-boss-intro':'region24-retry'}">${res.won?'Zu '+r.bossName:'Nochmal versuchen'}</button></section>`);return;}root.innerHTML=shell(`<section class="challenge-stage" data-testid="region24-challenge"><div class="challenge-progress"><div class="challenge-progress__meta"><span>Aufgabe ${s.index+1}/${r.standard.length}</span><strong>Wortkraft ${s.wordPower}</strong></div></div><div class="challenge-card glass-card ${c.type==='sentence'?'challenge-card--crown':''}"><span class="eyebrow">${c.type==='sentence'?'Crown Sentence':r.name+' · Übersetzung'}</span><h2>${c.prompt}</h2>${region24AnswerArea(c)}</div></section>`,{world:true})}
 function renderRegion24BossIntro(){const s=state.region24Session,r=getRegion24(s.regionId),t=region24BossTelegraph(s);root.innerHTML=shell(`<section class="boss-intro" data-testid="region24-boss-intro"><div class="boss-intro__art"><div class="boss-aura"></div><img src="${asset(r.bossAsset)}" alt="${r.bossName}" /></div><div class="boss-intro__card glass-card"><span class="eyebrow">Level ${r.order} · ${r.name}</span><h1>${r.bossName}</h1><h2>${t.label}</h2><p>${t.detail}</p>${region10MechanicHTML(s)}<button class="primary-button" data-action="region24-boss-start">Verstanden · Duell starten</button></div></section>`,{world:true})}
 function renderRegion24Boss(){const s=state.region24Session,r=getRegion24(s.regionId),c=currentRegion24Challenge(s),t=region24BossTelegraph(s);if(state.region24Feedback){root.innerHTML=shell(`<section class="boss-stage boss-stage--feedback"><div class="boss-mini"><img src="${asset(r.bossAsset)}" alt="${r.bossName}"/><div><strong>${r.bossName}</strong><span>HP ${s.bossHp}/3</span></div></div><p class="regional-telegraph"><b>${t.label}</b> · ${t.detail}</p><section class="feedback ${state.region24Feedback.correct?'feedback--correct':'feedback--wrong'}"><strong>${state.region24Feedback.correct?'Richtig!':'Noch nicht.'}</strong><p>${state.region24Feedback.correct?'+3 Wortkraft':`Richtig wäre: ${state.region24Feedback.expected}`}</p><button class="primary-button" data-action="region24-boss-next">Weiter</button></section></section>`,{world:true});return;}if(!c){const res=finishRegion24Boss(s);root.innerHTML=shell(`<section class="result-screen ${res.won?'result-screen--win':''}" data-testid="region24-boss-result"><img class="result-screen__tula" src="${asset('tula/tula-happy.webp')}" alt="Tula"/><span class="eyebrow">Kronensiegel ${r.order} von 10</span><h1>${res.won?r.name+' befreit!':'Revanche!'}</h1><p>${res.won?r.bossName+' wurde mit Sprache besiegt.':'Lernfortschritt bleibt erhalten. Die finale Bossaufgabe muss korrekt sein.'}</p><button class="primary-button" data-action="campaign">Zur Kampagnenkarte</button></section>`);return;}root.innerHTML=shell(`<section class="boss-stage" data-testid="region24-boss"><div class="boss-status"><div class="boss-mini"><img src="${asset(r.bossAsset)}" alt="${r.bossName}"/><div><strong>Lv. ${r.order} · ${r.bossName}</strong><span>${t.label}</span></div></div><div class="boss-hp"><span style="width:${s.bossHp*33.33}%"></span></div></div><p class="regional-telegraph"><b>Sichtbar angekündigt:</b> ${t.detail}</p>${region10MechanicHTML(s)}<div class="challenge-card glass-card"><h2>${c.prompt}</h2>${region24AnswerArea(c)}</div></section>`,{world:true})}
+
+function finaleAnswerArea(challenge){
+  if(challenge.type==='sentence'){
+    const used=new Set(state.finaleBuiltTokens.map(x=>x.index));
+    return `<div class="sentence-builder finale-sentence" data-testid="finale-sentence"><div class="sentence-builder__zone">${state.finaleBuiltTokens.length?state.finaleBuiltTokens.map((x,i)=>`<button data-finale-remove="${i}">${x.token}</button>`).join(''):'Tippe die Wörter in Reihenfolge an.'}</div><div class="token-bank">${challenge.tokens.map((t,i)=>`<button class="token" data-finale-token="${i}" ${used.has(i)?'disabled':''}>${t}</button>`).join('')}</div><button class="primary-button" data-action="finale-submit-sentence" ${state.finaleBuiltTokens.length!==challenge.tokens.length?'disabled':''}>Satz prüfen</button></div>`;
+  }
+  return `<div class="answer-grid">${challenge.answers.map(a=>`<button class="answer-button" data-finale-answer="${a.replaceAll('"','&quot;')}">${a}</button>`).join('')}</div>`;
+}
+function finaleMechanicHTML(session){
+  const m=session.bossMechanic;
+  if(session.regionId==='harbor') return `<div class="finale-mechanic azrak-shadow" data-testid="azrak-shadow"><b>Wandernder Schatten</b><div class="shadow-fields">${m.fields.map(id=>`<span class="${id===m.shadowField?'is-shadow':''} ${m.revealed&&id===m.shadowField?'is-revealed':''}">${id.split(':')[1]}</span>`).join('')}</div><small>Genau ein Schatten. Sprachtext und Hauptaktion bleiben immer frei.</small></div>`;
+  const t=finaleBossTelegraph(session);
+  return `<div class="finale-mechanic varkos-mechanic" data-testid="varkos-mechanic"><div class="varkos-phases">${[1,2,3,4].map(p=>`<span class="${m.phase===p?'is-active':''} ${m.phase>p?'is-done':''}">${p}</span>`).join('')}</div><b>${t.label}</b><p>${t.detail}</p>${m.phase===2?`<div class="hazard-row">${m.hazards.map(h=>`<span>⚠ ${h}</span>`).join('')}</div>`:''}${m.phase===3?`<div class="corvin-grid finale-grid">${m.grid.map(id=>`<span>${id.toUpperCase()}</span>`).join('')}</div>`:''}</div>`;
+}
+function renderFinaleRegion(){const s=state.finaleSession,r=getRegion910(s.regionId);root.innerHTML=shell(`<section class="region-view" data-testid="finale-region"><div class="world-hero" style="--world-image:url('${asset(r.worldAsset)}')"><div class="world-hero__shade"></div><div class="world-hero__title"><span class="eyebrow">Region ${r.order}</span><h1>${r.name}</h1><p>Deutsch → Englisch · ${r.focus}</p></div><div class="district-track">${r.districts.map((d,i)=>`<div class="district ${i===0?'district--active':''} ${i===4?'district--boss':''}"><b>${i+1}</b><span>${d}</span></div>`).join('')}</div></div><section class="mission-card glass-card"><span class="eyebrow">${r.order===10?'Finale der Kampagne':'Vorletzte Region'}</span><h2>${r.name} zurückholen</h2><p>Fünf Sprachaufgaben führen zu ${r.bossName}. Die Crown Sentence bleibt Pflicht.</p><button class="primary-button" data-action="finale-start">Mission starten</button><button class="text-button" data-action="campaign">Zur Inselkarte</button></section></section>`,{world:true});}
+function renderFinaleChallenge(){const s=state.finaleSession,r=getRegion910(s.regionId),c=currentFinaleChallenge(s);if(state.finaleFeedback){root.innerHTML=shell(`<section class="challenge-stage challenge-stage--feedback"><section class="feedback ${state.finaleFeedback.correct?'feedback--correct':'feedback--wrong'}"><strong>${state.finaleFeedback.correct?'Richtig!':'Noch nicht.'}</strong><p>${state.finaleFeedback.correct?'+3 Wortkraft':`Richtig wäre: ${state.finaleFeedback.expected}`}</p><button class="primary-button" data-action="finale-next">Weiter</button></section></section>`,{world:true});return;}if(!c){const res=finishFinaleStandard(s);state.finaleSession=res.state;root.innerHTML=shell(`<section class="result-screen ${res.won?'result-screen--win':''}" data-testid="finale-standard-result"><span class="eyebrow">Region ${r.order}</span><h1>${res.won?r.name+' erreicht!':'Übungsreise empfohlen'}</h1><p>${res.score} Wortkraft · Crown Sentence und Mindestlernleistung entscheiden.</p><button class="primary-button" data-action="${res.won?'finale-boss-intro':'finale-retry'}">${res.won?'Zu '+r.bossName:'Nochmal versuchen'}</button></section>`);return;}root.innerHTML=shell(`<section class="challenge-stage" data-testid="finale-challenge"><div class="challenge-progress"><div class="challenge-progress__meta"><span>Aufgabe ${s.index+1}/${r.standard.length}</span><strong>Wortkraft ${s.wordPower}</strong></div></div><div class="challenge-card glass-card ${c.type==='sentence'?'challenge-card--crown':''}"><span class="eyebrow">${c.type==='sentence'?'Crown Sentence':r.name+' · Sprachauftrag'}</span><h2>${c.prompt}</h2>${finaleAnswerArea(c)}</div></section>`,{world:true});}
+function renderFinaleBossIntro(){const s=state.finaleSession,r=getRegion910(s.regionId),t=finaleBossTelegraph(s);root.innerHTML=shell(`<section class="boss-intro" data-testid="finale-boss-intro"><div class="boss-intro__art"><div class="boss-aura"></div><img src="${asset(r.bossAsset)}" alt="${r.bossName}" data-testid="finale-boss-sprite"/></div><div class="boss-intro__card glass-card"><span class="eyebrow">Level ${r.order} · ${r.name}</span><h1>${r.bossName}</h1><h2>${t.label}</h2><p>${t.detail}</p>${finaleMechanicHTML(s)}<button class="primary-button" data-action="finale-boss-start">Verstanden · Duell starten</button></div></section>`,{world:true});}
+function renderFinaleBoss(){const s=state.finaleSession,r=getRegion910(s.regionId),c=currentFinaleChallenge(s),t=finaleBossTelegraph(s);if(state.finaleFeedback){root.innerHTML=shell(`<section class="boss-stage boss-stage--feedback"><div class="boss-mini"><img src="${asset(r.bossAsset)}" alt="${r.bossName}"/><div><strong>${r.bossName}</strong><span>HP ${s.bossHp}/${r.order===10?4:3}</span></div></div>${finaleMechanicHTML(s)}<section class="feedback ${state.finaleFeedback.correct?'feedback--correct':'feedback--wrong'}"><strong>${state.finaleFeedback.correct?'Richtig!':'Noch nicht.'}</strong><p>${state.finaleFeedback.correct?'+3 Wortkraft':`Richtig wäre: ${state.finaleFeedback.expected}`}</p><button class="primary-button" data-action="finale-boss-next">Weiter</button></section></section>`,{world:true});return;}if(!c){const res=finishFinaleBoss(s);state.finaleSession=res.state;state.campaignComplete=Boolean(res.campaignComplete);if(res.campaignComplete){root.innerHTML=shell(`<section class="campaign-victory result-screen result-screen--win" data-testid="campaign-victory"><div class="crown-emblem">♛</div><img class="result-screen__tula" src="${asset('tula/tula-happy.webp')}" alt="Tula feiert"/><span class="eyebrow">10 von 10 Kronensiegel</span><h1>Die Krone der Wörter ist zurück!</h1><p>Varkos ist besiegt. Du hast die Kampagne nicht durch Stärke allein gewonnen, sondern durch Wörter, Sätze und zehn Regionen voller Sprache.</p><div class="reward-row"><img src="${asset('rewards/reward-shell-gold.webp')}" alt="Goldene Muschel"/><span>Kampagne abgeschlossen</span><img src="${asset('rewards/reward-star-xp.webp')}" alt="XP"/><span>Krone der Wörter</span></div><button class="primary-button" data-action="campaign">Zur eroberten Inselkarte</button></section>`);return;}root.innerHTML=shell(`<section class="result-screen ${res.won?'result-screen--win':''}" data-testid="finale-boss-result"><img class="result-screen__tula" src="${asset('tula/tula-happy.webp')}" alt="Tula"/><span class="eyebrow">Kronensiegel ${r.order} von 10</span><h1>${res.won?r.name+' befreit!':'Revanche!'}</h1><p>${res.won?'Der Weg zum Kronenschloss ist frei.':'Die finale Bossaufgabe muss korrekt sein.'}</p><button class="primary-button" data-action="campaign">Zur Kampagnenkarte</button></section>`);return;}root.innerHTML=shell(`<section class="boss-stage" data-testid="finale-boss"><div class="boss-status"><div class="boss-mini"><img src="${asset(r.bossAsset)}" alt="${r.bossName}"/><div><strong>Lv. ${r.order} · ${r.bossName}</strong><span>${t.label}</span></div></div><div class="boss-hp"><span style="width:${Math.max(0,s.bossHp)/(r.order===10?4:3)*100}%"></span></div></div>${finaleMechanicHTML(s)}<div class="challenge-card glass-card ${c.type==='sentence'?'challenge-card--crown':''}"><span class="eyebrow">${s.regionId==='crown-castle'?t.label:'Azraks Herausforderung'}</span><h2>${c.prompt}</h2>${finaleAnswerArea(c)}</div></section>`,{world:true});}
 
 function renderGarden() {
   root.innerHTML = shell(`
@@ -499,6 +529,10 @@ function render() {
     case 'region24-challenge': renderRegion24Challenge(); break;
     case 'region24-boss-intro': renderRegion24BossIntro(); break;
     case 'region24-boss': renderRegion24Boss(); break;
+    case 'finale-region': renderFinaleRegion(); break;
+    case 'finale-challenge': renderFinaleChallenge(); break;
+    case 'finale-boss-intro': renderFinaleBossIntro(); break;
+    case 'finale-boss': renderFinaleBoss(); break;
     case 'challenge': renderStandardChallenge(); break;
     case 'enemy-turn': renderEnemyTurn(); break;
     case 'standard-result': renderStandardResult(); break;
@@ -559,6 +593,11 @@ root.addEventListener('click', (event) => {
   const target = event.target.closest('button');
   if (!target) return;
 
+  if (target.dataset.finaleRegion) { state.finaleSession=createFinaleSession(target.dataset.finaleRegion); state.finaleFeedback=null; state.finaleBuiltTokens=[]; state.screen='finale-region'; render(); return; }
+  if (target.dataset.finaleAnswer != null) { const out=answerFinale(state.finaleSession,target.dataset.finaleAnswer); state.finaleSession=out.state; state.finaleFeedback=out.result; render(); return; }
+  if (target.dataset.finaleToken != null) { const c=currentFinaleChallenge(state.finaleSession); const index=Number(target.dataset.finaleToken); if(!state.finaleBuiltTokens.some(x=>x.index===index))state.finaleBuiltTokens.push({index,token:c.tokens[index]}); render(); return; }
+  if (target.dataset.finaleRemove != null) { state.finaleBuiltTokens.splice(Number(target.dataset.finaleRemove),1); render(); return; }
+
   if (target.dataset.region24) { state.region24Session=createRegion24Session(target.dataset.region24); state.region24Feedback=null; state.region24BuiltTokens=[]; state.screen='region24'; render(); return; }
   if (target.dataset.region24Answer != null) { const out=answerRegion24(state.region24Session,target.dataset.region24Answer); state.region24Session=out.state; state.region24Feedback=out.result; render(); return; }
   if (target.dataset.region24Token != null) { const c=currentRegion24Challenge(state.region24Session); const t=c.tokens[Number(target.dataset.region24Token)]; if(!state.region24BuiltTokens.includes(t))state.region24BuiltTokens.push(t); render(); return; }
@@ -612,6 +651,13 @@ root.addEventListener('click', (event) => {
     case 'help': state.helpOpen = true; state.paused = false; render(); break;
     case 'close-help': state.helpOpen = false; render(); break;
     case 'open-garden': state.screen = 'garden'; render(); break;
+    case 'finale-start': state.screen='finale-challenge'; render(); break;
+    case 'finale-submit-sentence': { const out=answerFinale(state.finaleSession,state.finaleBuiltTokens.map(x=>x.token)); state.finaleSession=out.state; state.finaleFeedback=out.result; state.finaleBuiltTokens=[]; render(); break; }
+    case 'finale-next': state.finaleFeedback=null; state.finaleBuiltTokens=[]; render(); break;
+    case 'finale-retry': state.finaleSession=createFinaleSession(state.finaleSession.regionId); state.finaleFeedback=null; state.finaleBuiltTokens=[]; state.screen='finale-challenge'; render(); break;
+    case 'finale-boss-intro': state.screen='finale-boss-intro'; render(); break;
+    case 'finale-boss-start': state.finaleSession=startFinaleBoss(state.finaleSession); state.finaleFeedback=null; state.finaleBuiltTokens=[]; state.screen='finale-boss'; render(); break;
+    case 'finale-boss-next': state.finaleFeedback=null; state.finaleBuiltTokens=[]; render(); break;
     case 'region24-start': state.screen='region24-challenge'; render(); break;
     case 'region24-submit-sentence': { const out=answerRegion24(state.region24Session,state.region24BuiltTokens); state.region24Session=out.state; state.region24Feedback=out.result; state.region24BuiltTokens=[]; render(); break; }
     case 'region24-next': state.region24Feedback=null; state.region24BuiltTokens=[]; render(); break;

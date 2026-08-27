@@ -334,3 +334,17 @@ img { display: block; max-width: 100%; }
 .corvin-grid { width:min(210px,100%); display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
 .corvin-grid span { aspect-ratio:1; display:grid; place-items:center; min-height:38px; border-radius:10px; background:rgb(255 255 255 / 10%); border:1px solid rgb(255 255 255 / 16%); font-weight:950; }
 @media (max-height:430px) and (orientation:landscape){ .regional-mechanic { padding:7px 9px; gap:4px; font-size:.78rem; } .corvin-grid { width:126px; } .corvin-grid span { min-height:28px; } }
+
+.finale-mechanic { display:grid; gap:8px; padding:10px 12px; border-radius:16px; border:1px solid rgb(247 200 93 / 30%); background:rgb(4 18 30 / 62%); }
+.shadow-fields { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.shadow-fields span { padding:7px 5px; border-radius:10px; text-align:center; background:rgb(255 255 255 / 8%); font-size:.72rem; }
+.shadow-fields .is-shadow { box-shadow:inset 0 0 0 2px rgb(130 88 180 / 72%); background:rgb(35 16 55 / 78%); }
+.shadow-fields .is-revealed { box-shadow:inset 0 0 0 2px #ffe590; }
+.varkos-phases { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+.varkos-phases span { display:grid; place-items:center; min-height:28px; border-radius:999px; background:rgb(255 255 255 / 8%); font-weight:900; }
+.varkos-phases .is-active { background:rgb(247 200 93 / 24%); box-shadow:inset 0 0 0 1px #ffe590; }
+.varkos-phases .is-done { opacity:.55; }
+.hazard-row { display:flex; gap:6px; flex-wrap:wrap; }
+.hazard-row span { padding:6px 8px; border-radius:10px; background:rgb(117 33 48 / 55%); }
+.crown-emblem { font-size:clamp(3rem,12vw,6rem); line-height:1; color:#ffe590; filter:drop-shadow(0 8px 20px rgb(247 200 93 / 25%)); }
+@media (max-height:430px) and (orientation:landscape){ .finale-mechanic { padding:7px 9px; gap:5px; font-size:.78rem; } .shadow-fields span { padding:4px 3px; } }

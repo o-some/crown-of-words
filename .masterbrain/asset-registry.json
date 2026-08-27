@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Tula's Island – Crown of Words",
-  "branch": "branch-10-regions-5-8",
+  "branch": "branch-11-harbor-castle-finale",
   "sourceRepository": {
     "repository": "o-some/tulasisland",
     "commit": "cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0"
@@ -332,6 +332,60 @@
       "dropboxContentHash": "7cc942a8bd23f20a326606d2f2ac5f17262b88b7f452f665390fddceefa8280f",
       "size": 132080,
       "sha256": "3240b5691f3037337064962c9c78e98c71b837297634afa59e428b50fd4cce45",
+      "transparent": true
+    },
+    {
+      "id": "world-harbor",
+      "kind": "region-background",
+      "status": "ready",
+      "runtimePath": "public/assets/worlds/world-harbor.webp",
+      "sourceRepository": "o-some/tulasisland",
+      "sourceCommit": "cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0",
+      "sourceRepoPath": "assets/creative/world_harbor.webp",
+      "sourceRepoBlob": "4eb9273c7bd152eb20c0dc1f72e51078aeb21322",
+      "dropboxPath": "/[LinguaTurtle]/03_Bilder_und_Design/02_Backgrounds/Web/Worlds/world_harbor.webp",
+      "size": 372646,
+      "sha256": "db28d4b180aac22d36e49a35549faa3159917b42cafd26fe39c0253d768275d3"
+    },
+    {
+      "id": "world-castle",
+      "kind": "region-background",
+      "status": "ready",
+      "runtimePath": "public/assets/worlds/world-castle.webp",
+      "sourceRepository": "o-some/tulasisland",
+      "sourceCommit": "cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0",
+      "sourceRepoPath": "assets/creative/world_castle.webp",
+      "sourceRepoBlob": "a59b9b8798cb19a138a59faef4a854e7370570a3",
+      "dropboxPath": "/[LinguaTurtle]/03_Bilder_und_Design/02_Backgrounds/Web/Worlds/world_castle.webp",
+      "size": 324804,
+      "sha256": "a119855af6b384aaa38829729cf5306c566bfaaecebb2c86511d7eb4ee993887"
+    },
+    {
+      "id": "boss-09-azrak",
+      "kind": "boss",
+      "status": "ready",
+      "runtimePath": "public/assets/bosses/boss-09-azrak.webp",
+      "sourceRepository": "o-some/word-scramble",
+      "sourceCommit": "ac594046c99ac63954164fe6da0a89ff92c29cf4",
+      "sourceRepoPath": "assets/bosses/level-09-schattenfuerst-azrak.webp",
+      "sourceRepoBlob": "734d7880fcbff2f97a0635132b6a375894a4f417",
+      "dropboxPath": "/[LinguaTurtle]/[Endbosse]/Tulas_Island_10_Original_Bosse_Einzeln_v2/[Freigestellt]/Level 9 - Schattenfürst Azrak.png",
+      "size": 284304,
+      "sha256": "ce1cb05e061c5ee9bbfaaad177be69eb2fe8b56a64b8f43db58f777c2bb37299",
+      "transparent": true
+    },
+    {
+      "id": "boss-10-varkos",
+      "kind": "boss",
+      "status": "ready",
+      "runtimePath": "public/assets/bosses/boss-10-varkos.webp",
+      "sourceRepository": "o-some/word-scramble",
+      "sourceCommit": "ac594046c99ac63954164fe6da0a89ff92c29cf4",
+      "sourceRepoPath": "assets/bosses/level-10-piratenkoenig-varkos.webp",
+      "sourceRepoBlob": "96e286c3daed856dd1d0f69ddfea8c7603124f68",
+      "dropboxPath": "/[LinguaTurtle]/[Endbosse]/Tulas_Island_10_Original_Bosse_Einzeln_v2/[Freigestellt]/Level 10 - Piratenkönig Varkos.png",
+      "size": 347868,
+      "sha256": "2088bb64dcb552b8e709ca73985f4f3949719a572c41ecc089efec97472f3036",
       "transparent": true
     }
   ]

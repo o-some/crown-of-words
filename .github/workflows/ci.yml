@@ -41,6 +41,8 @@ jobs:
         run: npm run test:regions9
       - name: Regions 5-8 boss and session contracts
         run: npm run test:regions10
+      - name: Harbor, castle and campaign finale contracts
+        run: npm run test:finale
       - name: Save and reload contract
         run: npm run test:save
       - name: Card hand contract
