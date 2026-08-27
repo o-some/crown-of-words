@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check:syntax": "node --check src/main.js",
-    "test": "npm run check:syntax && npm run build"
+    "check:syntax": "node --check src/main.js && node --check scripts/check-assets.mjs",
+    "check:assets": "node scripts/check-assets.mjs",
+    "test": "npm run check:syntax && npm run check:assets && npm run build"
   },
   "devDependencies": {
     "vite": "8.2.0"
