@@ -1,5 +1,5 @@
 name: Branch 12 Runtime Regression
-# trigger standalone adapter regression
+# rerun standalone adapter regression after final host hardening
 on:
   push:
     branches: [branch-12-host-integration]
