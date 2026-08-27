@@ -67,6 +67,14 @@ Gastmodus:
 - danach wird die lokale Gastmuschelmenge über `setState` erhöht
 - dieselbe `committedEventId` verhindert Doppelgutschrift beim Reload
 
+Fehler-/Offlinefall:
+
+- der Kampagnensieg wird **vor** dem Reward-Sync gespeichert
+- schlägt `creditGameplayShells` fehl, liefert der Adapter `retryable: true`
+- XP, Sterne, Mastery und `committedEventIds` werden in diesem Fehlerfall nicht teilweise geschrieben
+- dieselbe stabile Event-ID kann später sicher erneut gesendet werden
+- der bereits gespeicherte 10/10-Sieg bleibt davon unberührt
+
 ## Stabile Reward Event IDs
 
 Format:
