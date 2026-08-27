@@ -29,5 +29,7 @@ jobs:
         run: npm run check:syntax
       - name: Asset integrity
         run: npm run check:assets
+      - name: Pure campaign core
+        run: npm run test:core
       - name: Production build
         run: npm run build
