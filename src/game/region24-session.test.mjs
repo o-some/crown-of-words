@@ -4,8 +4,7 @@ import { answerRegion24, createRegion24Session, currentRegion24Challenge, finish
 
 function answerCorrect(session) {
   const challenge = currentRegion24Challenge(session);
-  const answer = Array.isArray(challenge.correct) ? challenge.correct : challenge.correct;
-  return answerRegion24(session, answer).state;
+  return answerRegion24(session, challenge.correct).state;
 }
 
 for (const regionId of ['library','wildlife','home']) {
@@ -30,7 +29,14 @@ test('final Crown Sentence cannot be skipped for a standard win', () => {
   assert.equal(finishRegion24Standard(state).won, false);
 });
 
-test('Roderick session receives only supplied error history', () => {
-  const state = createRegion24Session('home', { errorConcepts: ['prep:under','object:key'] });
-  assert.deepEqual(state.bossMechanic.revengeQueue, ['prep:under','object:key']);
+test('Roderick receives only supplied or actually missed concepts before intro', () => {
+  let state = createRegion24Session('home');
+  state = answerRegion24(state, 'wrong').state;
+  assert.deepEqual(state.errorConcepts, ['room:kitchen']);
+  for (let i = 1; i < 5; i += 1) state = answerCorrect(state);
+  const standard = finishRegion24Standard(state);
+  assert.equal(standard.won, true);
+  assert.deepEqual(standard.state.bossMechanic.revengeQueue, ['room:kitchen']);
+  const supplied = createRegion24Session('home', { errorConcepts: ['prep:under','object:key'] });
+  assert.deepEqual(supplied.bossMechanic.revengeQueue, ['prep:under','object:key']);
 });
