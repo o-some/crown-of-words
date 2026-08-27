@@ -1,0 +1,96 @@
+profile: "CAF Crown of Words PlayBrain Gate"
+candidate_branch: "branch-6-playbrain-visual-gate"
+evidence_run_id: 33078161730
+artifact_id: 9648816300
+artifact_sha256: "b2f8939aa5f9c97808511bae76a5e790cd656e09800056d4f34c5d415791d6bc"
+
+quality:
+  overall:
+    score: 92.7
+    minimum: 90
+    status: PASS
+  categories:
+    technical_stability:
+      weight: 0.20
+      score: 98
+      minimum: 95
+      status: PASS
+      evidence:
+        - "npm test and production build passed"
+        - "versioned save contract and safe fallback tested"
+        - "reload during standard and boss feedback passed"
+    mobile_ux:
+      weight: 0.20
+      score: 94
+      minimum: 90
+      status: PASS
+      evidence:
+        - "375x667, 390x844 and 430x932 browser-mobile paths passed"
+        - "844x390 landscape path passed"
+        - "no horizontal overflow in tested paths"
+        - "primary portrait challenge interaction remained in viewport"
+    gameplay:
+      weight: 0.20
+      score: 91
+      minimum: 85
+      status: PASS
+      evidence:
+        - "complete Garden-to-Kai flow passed"
+        - "Kai cheat telegraph and Ankerblick passed"
+        - "pause/help preserve active run"
+    brand_visual_quality:
+      weight: 0.15
+      score: 92
+      minimum: 90
+      status: PASS
+      evidence:
+        - "real Tula and Pirat Kai assets used"
+        - "portrait, landscape and desktop evidence visually reviewed"
+        - "no observed clipping or overlap in reviewed evidence"
+    learning_value:
+      weight: 0.15
+      score: 90
+      minimum: 85
+      status: PASS
+      evidence:
+        - "wrong feedback teaches the correct answer"
+        - "hint reduces word power"
+        - "Crown Sentence remains mandatory"
+        - "strategy cannot bypass minimum learning gate"
+    performance:
+      weight: 0.05
+      score: 90
+      minimum: 85
+      status: PASS
+      evidence:
+        - "production bundle remains small"
+        - "five automated full flows completed without runtime error"
+      limitations:
+        - "No FPS, RAM or battery claim; no real-device performance measurement yet"
+    accessibility_input:
+      weight: 0.05
+      score: 86
+      minimum: 80
+      status: PASS
+      evidence:
+        - "button/tap interaction has non-drag path"
+        - "focus-visible styling exists"
+        - "reduced-motion browser preference exercised"
+        - "pause/help are explicit dialog surfaces"
+      limitations:
+        - "No full screen-reader audit yet"
+        - "No physical keyboard-only audit yet"
+
+test_labels:
+  browser_mobile_viewport_tested: true
+  desktop_browser_tested: true
+  automated_runtime_tested: true
+  manual_agent_visual_reviewed: true
+  real_device_tested: false
+  native_simulator_tested: false
+  webkit_engine_tested: false
+
+open_notes:
+  - "Physical iPhone/Safari remains NOT TESTED."
+  - "200 percent zoom and extended Spanish/Greek strings remain NOT TESTED."
+  - "Performance score is observational/runtime evidence, not an FPS or memory benchmark."
