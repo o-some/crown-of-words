@@ -1,5 +1,5 @@
 name: Branch 8 Browser Playtest
-# rerun after presentation-safe intent assertion
+# rerun after intent and round labels were made presentation-safe
 on:
   push:
     branches:
