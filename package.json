@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check:syntax": "node --check src/main.js && node --check src/game/campaign-data.js && node --check src/game/campaign-core.js && node --check src/game/ai-director.js && node --check src/game/learning-core.js && node --check src/game/kai-core.js && node --check src/game/save-contract.js && node --check src/game/card-core.js && node --check src/game/helper-core.js && node --check src/adapters/standalone-storage.js && node --check src/content/garden-content.js && node --check src/content/garden-cards.js && node --check scripts/check-assets.mjs && node --check tests/e2e/branch5-playtest.cjs && node --check tests/e2e/branch6-playbrain-gate.cjs && node --check tests/e2e/branch7-cards-helpers.cjs",
+    "check:syntax": "node --check src/main.js && node --check src/game/campaign-data.js && node --check src/game/campaign-core.js && node --check src/game/ai-director.js && node --check src/game/learning-core.js && node --check src/game/kai-core.js && node --check src/game/save-contract.js && node --check src/game/card-core.js && node --check src/game/helper-core.js && node --check src/adapters/standalone-storage.js && node --check src/content/garden-content.js && node --check src/content/garden-cards.js && node --check scripts/check-assets.mjs && node --check tests/e2e/branch5-playtest.cjs && node --check tests/e2e/branch6-playbrain-gate.cjs && node --check tests/e2e/branch7-cards-helpers.cjs && node --check tests/e2e/branch8-enemy-ai.cjs",
     "check:assets": "node scripts/check-assets.mjs",
     "test:campaign": "node --test src/game/campaign-core.test.mjs",
     "test:ai": "node --test src/game/ai-director.test.mjs",
