@@ -1,0 +1,43 @@
+name: Branch 5 Browser Playtest
+on:
+  push:
+    branches:
+      - branch-5-garden-kai-vertical-slice
+    paths:
+      - '.github/workflows/playtest-branch5.yml'
+permissions:
+  contents: read
+jobs:
+  playtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Start preview
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/crown-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/crown-preview.log
+          exit 1
+      - name: Install ephemeral browser runtime
+        run: npm exec --yes --package=playwright@1.55.0 -- playwright install chromium
+      - name: Play Garden and Kai end to end
+        run: |
+          PW_PACKAGE=$(find ~/.npm/_npx -path '*/node_modules/playwright/package.json' | head -n1)
+          test -n "$PW_PACKAGE"
+          PW_MODULES=$(dirname "$(dirname "$PW_PACKAGE")")
+          NODE_PATH="$PW_MODULES" PLAYTEST_URL=http://127.0.0.1:4173/ node tests/e2e/branch5-playtest.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: branch5-playtest-screenshots
+          path: test-artifacts/*.png
+          if-no-files-found: ignore
