@@ -1,0 +1,24 @@
+name: Branch 11 Victory Persistence
+on:
+  push:
+    branches: [branch-11-harbor-castle-finale]
+    paths: ['.github/workflows/branch11-victory-save.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: node scripts/branch11-victory-save.mjs
+      - run: node --check src/main.js
+      - run: npm run test:finale
+      - name: Commit victory persistence
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/main.js
+          git commit -m 'fix: persist final campaign victory immediately'
+          git push
