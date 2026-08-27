@@ -1,5 +1,6 @@
 name: Finalize Crown of Words master spec
 
+# Triggered after all five verified transfer parts are present on main.
 on:
   push:
     branches:
