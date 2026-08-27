@@ -1,5 +1,5 @@
 name: Branch 8 UI Patch
-# second commit registers and triggers this feature-branch workflow
+# rerun through guarded wrapper after precise standard-result targeting
 on:
   push:
     branches:
@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: node scripts/branch8-ui-patch.mjs
+      - run: node scripts/branch8-ui-patch-run.mjs
       - run: node --check src/main.js
       - run: |
           git config user.name 'github-actions[bot]'
