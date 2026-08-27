@@ -1,4 +1,5 @@
 name: Branch 12 Host Regression
+# trigger pinned full host regression
 on:
   push:
     branches: [branch-12-host-integration]
