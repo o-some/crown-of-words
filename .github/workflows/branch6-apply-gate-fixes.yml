@@ -1,5 +1,5 @@
 name: Branch 6 Gate Fixes
-# second commit triggers the feature-branch workflow after registration
+# retrigger after narrowing the guarded boot-state patch
 on:
   push:
     branches:
