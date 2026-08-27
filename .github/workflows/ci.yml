@@ -37,5 +37,9 @@ jobs:
         run: npm run test:kai
       - name: Save and reload contract
         run: npm run test:save
+      - name: Card hand contract
+        run: npm run test:cards
+      - name: Helper commander contract
+        run: npm run test:helpers
       - name: Production build
         run: npm run build
