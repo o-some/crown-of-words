@@ -1,0 +1,36 @@
+name: Branch 7 Helper Import
+on:
+  push:
+    branches:
+      - branch-7-cards-helpers
+    paths:
+      - '.github/workflows/branch7-import-helpers.yml'
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: branch-7-cards-helpers
+      - name: Import pinned Wordbound helper assets
+        run: |
+          set -euo pipefail
+          SRC=81d3f0461d16bf67d4fe80f73fe473ace1f20bbe
+          mkdir -p public/assets/helpers
+          for name in meli neri skippi fino; do
+            curl --fail --silent --show-error --location "https://raw.githubusercontent.com/o-some/wordbound-battle/${SRC}/src/assets/helpers/${name}.webp" -o "public/assets/helpers/${name}.webp"
+          done
+          test "$(stat -c%s public/assets/helpers/meli.webp)" = "8538"
+          test "$(stat -c%s public/assets/helpers/neri.webp)" = "11600"
+          test "$(stat -c%s public/assets/helpers/skippi.webp)" = "12372"
+          test "$(stat -c%s public/assets/helpers/fino.webp)" = "11324"
+          sha256sum public/assets/helpers/*.webp
+      - name: Commit imported assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/helpers
+          git commit -m 'assets: import canonical Wordbound helpers'
+          git push origin HEAD:branch-7-cards-helpers
