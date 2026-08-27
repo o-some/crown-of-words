@@ -1,0 +1,87 @@
+game:
+  name: "Tula's Island – Crown of Words"
+  slug: "crown-of-words"
+  class: "GAME-NEW"
+  genre:
+    - "turn-based strategy"
+    - "territory control"
+    - "language-learning game"
+  audience:
+    primary: "reading-capable children approximately 6-12"
+    modes: ["explorer", "captain", "admiral"]
+  platform:
+    - "responsive web"
+    - "later Capacitor integration"
+  orientation:
+    primary: "portrait mobile"
+    supported: ["landscape", "desktop"]
+  input: ["touch", "pointer", "keyboard", "accessible non-drag alternative"]
+
+learning:
+  objective:
+    - "translation"
+    - "vocabulary mastery"
+    - "sentence construction"
+    - "grammar in context"
+    - "reading comprehension"
+  languages: ["de", "en", "es", "el"]
+  content_source: "versioned host content contract"
+  learning_power_minimum_share: 0.75
+  final_capture_requirement: "correct Crown Sentence"
+  feedback:
+    - "teaching-first"
+    - "non-shaming"
+    - "exactly-once resolution"
+    - "revenge-word scheduling"
+
+core_loop:
+  action: "select adjacent region and tactical plan"
+  challenge: "solve language tasks"
+  feedback: "word power, mastery, tactical effect and clear correction"
+  reward: "region progress, stars, XP, shells and crown seals"
+  progression: "ten regions, tournaments and ten bosses"
+
+visual:
+  brand_world: "Tula's Island premium adventure"
+  existing_assets_first: true
+  readability_priority: true
+  mobile_first: true
+  no_planets: true
+  no_baked_ui_text_in_raster_assets: true
+
+architecture:
+  pure_core: true
+  direct_dom_in_core: false
+  direct_local_storage_in_core: false
+  direct_supabase_in_core: false
+  provider_adapters_required: true
+  save_schema_versioned: true
+  seeded_rng: true
+
+acceptance:
+  gameplay:
+    - "strategy cannot bypass learning"
+    - "Crown Sentence required for capture"
+    - "boss cheats are telegraphed and preserve answer truth"
+    - "pause and help preserve exact state"
+    - "rewards resolve exactly once"
+  mobile:
+    - "375x667"
+    - "390x844"
+    - "430x932"
+    - "safe area aware"
+    - "primary gameplay without avoidable scrolling"
+  visual:
+    - "real Tula and boss assets"
+    - "no clipping"
+    - "no generic minigame look"
+  technical:
+    - "build"
+    - "unit tests"
+    - "integration tests"
+    - "E2E runtime playtest"
+    - "asset 404 check"
+  performance:
+    - "lazy world and boss assets"
+    - "no unbounded timer or listener loops"
+    - "reduced motion"

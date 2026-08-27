@@ -1,0 +1,25 @@
+project:
+  name: "Tula's Island – Crown of Words"
+  slug: "crown-of-words"
+  repository: "o-some/crown-of-words"
+  class: "GAME-NEW"
+  status: "SCAFFOLD"
+
+source_of_truth:
+  master_spec: "TULAS_ISLAND_CROWN_OF_WORDS_MASTER_SPEC_2026-08-27.md"
+  branch_plan: "master-spec section 44"
+
+architecture:
+  runtime: "Vite + browser-native ES modules"
+  language: "JavaScript"
+  standalone_first: true
+  host_integration_target: "o-some/tulasisland/src/v3/games/crown-of-words/"
+  direct_local_storage_in_game_core: false
+  direct_supabase_in_game_core: false
+
+workflow:
+  direct_main_write: false
+  force_push: false
+  stop_after_branch: true
+  current_branch: "branch-1-contracts-scaffold"
+  baseline_sha: "afd757e19edce4af1592e6ac04abc46c6116e084"

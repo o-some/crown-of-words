@@ -1,0 +1,8 @@
+2da54c0a20d2ae643e5482b700fdc018a59ef45a4dc1c3455b986e80007a641c  public/assets/worlds/world-coral-reef.webp
+4730902758bb64f7fa1ac339c309538c73539e699a74557c4bdbc42cd5b13cce  public/assets/worlds/world-crystal-cove.webp
+beb29310956e6094722f8fb095ae51b6cdfe02e45d17afc81d40b785044dbf75  public/assets/worlds/world-desert-oasis.webp
+293f50c69764c17ea780ba347ba41901b7e3173cfabf18ab01583fd220a9e40f  public/assets/worlds/world-ice-peak.webp
+f2c6a911ec0d16fca68c2c2102a30e8692d8306faca50355375fd4e75c7c257f  public/assets/bosses/boss-05-vargas.webp
+59a06b7bf708e5fa7aef4f43dcabdd06581d2ac35f1799e8fdcb369063346956  public/assets/bosses/boss-06-ironhook.webp
+58e005733b0aa5e02589f9218c27b4102c70a6d3fa880437b27b3ec567dca3a1  public/assets/bosses/boss-07-thorne.webp
+3240b5691f3037337064962c9c78e98c71b837297634afa59e428b50fd4cce45  public/assets/bosses/boss-08-corvin.webp

@@ -1,0 +1,29 @@
+{
+  "name": "crown-of-words",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check:syntax": "node --check src/main.js && node --check src/game/campaign-data.js && node --check src/game/campaign-core.js && node --check src/game/ai-director.js && node --check src/game/learning-core.js && node --check src/game/kai-core.js && node --check src/game/region-boss-core.js && node --check src/game/region10-boss-core.js && node --check src/game/region24-session.js && node --check src/game/save-contract.js && node --check src/game/card-core.js && node --check src/game/helper-core.js && node --check src/adapters/standalone-storage.js && node --check src/adapters/game-runtime-adapter.js && node --check src/adapters/tulas-island-host.js && node --check src/content/garden-content.js && node --check src/content/garden-cards.js && node --check src/content/regions-2-4.js && node --check src/content/regions-5-8.js && node --check scripts/check-assets.mjs && node --check scripts/check-release.mjs && node --check tests/e2e/branch5-playtest.cjs && node --check tests/e2e/branch6-playbrain-gate.cjs && node --check tests/e2e/branch7-cards-helpers.cjs && node --check tests/e2e/branch8-enemy-ai.cjs && node --check tests/e2e/branch9-regions-2-4.cjs && node --check tests/e2e/branch11-harbor-castle.cjs && node --check src/content/regions-9-10.js && node --check src/game/finale-boss-core.js && node --check src/game/finale-session.js",
+    "check:assets": "node scripts/check-assets.mjs",
+    "check:release": "node scripts/check-release.mjs",
+    "test:campaign": "node --test src/game/campaign-core.test.mjs",
+    "test:ai": "node --test src/game/ai-director.test.mjs",
+    "test:learning": "node --test src/game/learning-core.test.mjs",
+    "test:kai": "node --test src/game/kai-core.test.mjs",
+    "test:regions9": "node --test src/game/region-boss-core.test.mjs src/game/region24-session.test.mjs",
+    "test:regions10": "node --test src/game/region10-boss-core.test.mjs src/game/region58-session.test.mjs",
+    "test:finale": "node --test src/game/finale-boss-core.test.mjs src/game/finale-session.test.mjs",
+    "test:save": "node --test src/game/save-contract.test.mjs",
+    "test:cards": "node --test src/game/card-core.test.mjs",
+    "test:helpers": "node --test src/game/helper-core.test.mjs",
+    "test:host": "node --test src/adapters/tulas-island-host.test.mjs",
+    "test": "npm run check:syntax && npm run check:assets && npm run test:campaign && npm run test:ai && npm run test:learning && npm run test:kai && npm run test:regions9 && npm run test:regions10 && npm run test:finale && npm run test:save && npm run test:cards && npm run test:helpers && npm run test:host && npm run build && npm run check:release"
+  },
+  "devDependencies": {
+    "vite": "8.2.0"
+  }
+}

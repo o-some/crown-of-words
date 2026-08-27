@@ -1,0 +1,57 @@
+name: Crown of Words CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'branch-*'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Syntax check
+        run: npm run check:syntax
+      - name: Asset integrity
+        run: npm run check:assets
+      - name: Pure campaign core
+        run: npm run test:campaign
+      - name: Enemy AI director
+        run: npm run test:ai
+      - name: Pure learning core
+        run: npm run test:learning
+      - name: Kai boss core
+        run: npm run test:kai
+      - name: Regions 2-4 boss and session contracts
+        run: npm run test:regions9
+      - name: Regions 5-8 boss and session contracts
+        run: npm run test:regions10
+      - name: Harbor, castle and campaign finale contracts
+        run: npm run test:finale
+      - name: Save and reload contract
+        run: npm run test:save
+      - name: Card hand contract
+        run: npm run test:cards
+      - name: Helper commander contract
+        run: npm run test:helpers
+      - name: Tulas Island host adapter contract
+        run: npm run test:host
+      - name: Production build
+        run: npm run build
+      - name: Release bundle gate
+        run: npm run check:release
