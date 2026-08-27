@@ -1,5 +1,5 @@
 name: Branch 10 Asset Import
-# trigger verified import
+# public Tula runtime worlds + verified Dropbox boss originals
 on:
   push:
     branches: [branch-10-regions-5-8]
@@ -11,19 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch verified Dropbox originals
+      - name: Fetch verified originals
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p public/assets/worlds public/assets/bosses docs
-          curl --fail --location --silent --show-error 'https://uc061da62333a1ec46c3cab15316.dl.dropboxusercontent.com/cd/0/get/DHDAFPvc6YUsP3lCBeyZ3tm2vTPPENADlGPNTKuXei-iZTpjDOQGNL6t3hoABMnLhzIM16OCPUUIKN0GBWAiMQm329KPYds4RZMYRc4fen2C04_H8wJkEfFGLRRXGLoKgIdD8jN5f5BlvPgAiCtug9KIg3AO7LnPCAidDDxVtyo7_Q/file?c_luid=88361d58' -o public/assets/worlds/world-coral-reef.webp
-          curl --fail --location --silent --show-error 'https://uc65d617fd6c442ba5ab2387cf94.dl.dropboxusercontent.com/cd/0/get/DHAz3YxS_mTVC_mciBCjHYvD8bdxR7i18_1pDNc-chK6XVCSNLjYvkuM8rFGnTa5NUtdin5kAYyEpIH6BtGlSWWE-4ZUcTo1LKWxYInHDfEvXe_bMCSXTVaD5c_OfT1Q8lSiQ00llx80NimNMgnHpZZtS39NPAhwfneXa6tnLudAAg/file?c_luid=88361d58' -o public/assets/worlds/world-crystal-cove.webp
-          curl --fail --location --silent --show-error 'https://uc1386ffb38784d6261904836e93.dl.dropboxusercontent.com/cd/0/get/DHDcawCCy1Yeez7F4CG2VR-7WVb50wV6yg3_Y8DEVOuCOOX1wkTZV4kYxq_N1Cc1mEo1ejOgscCygxjFd63ofULRPhSNN-AM8LYur0J6DdbsL30pdMa--S6gm8PQ2_fdjXZoO32VV50p5am-EBH7tLpxkLfTsu2o6RQkywNmj88OaA/file?c_luid=88361d58' -o public/assets/worlds/world-desert-oasis.webp
-          curl --fail --location --silent --show-error 'https://uc7755910887527415a1d56e2e9d.dl.dropboxusercontent.com/cd/0/get/DHB655vpYq6PF5jK_oPPk11WOr161Abr-gG0Or1lGF_X3cdAfXAkU_SE4nH94u9zoNld0_rEBLZjspoOjQa382vmVQ2fOeafkwlVMip5NC5KYvnmkS2HdeWhqdgNqVpZhewvnF3iCvumoVCxSyzRXDiSrCXSr_93MTb8o9-hk3tUPw/file?c_luid=88361d58' -o public/assets/worlds/world-ice-peak.webp
-          curl --fail --location --silent --show-error 'https://uc854c9007607a304860f1d33f99.dl.dropboxusercontent.com/cd/0/get/DHCAsH__dudjVTvxtZKtQxU9qH2ciXBIxIp1bWsBQjIMf_TgmVd13qFjuyHwK74XSPBK3Xs6CndKREiKQ9dsAFvEYP0kA_WqCkw9wTIRqtVAx3DQgFE60SFHZpk-0vJd73Q2PoUDb_dAoWlRaAoYD_c8FvTQyDmRYfmor6LxmUzQrg/file?c_luid=88361d58' -o public/assets/bosses/boss-05-vargas.png
-          curl --fail --location --silent --show-error 'https://uca61c87713d0a3e70bcd42e486b.dl.dropboxusercontent.com/cd/0/get/DHAI1X6yfFTTZ-a3fdMMFp61u4AjIulVTmNEfbVbN1m2eiWSeZ7ZmYBV3L9LVABjvZQlnBmz_3AsPowHNe5oRUwvvZ8UN7b7Qhitz0Sb7OSl5ppRz910jDkCrIOg8FormSaqJYbnpiZTF1hUxPstdB9NiQluQikxMg3n6JHsE6WQ-g/file?c_luid=88361d58' -o public/assets/bosses/boss-06-ironhook.png
-          curl --fail --location --silent --show-error 'https://uc4b191c278a12bc5e56cbfdfaff.dl.dropboxusercontent.com/cd/0/get/DHDBPP48tX1NwK0tnU5NogtfHxzAbzTR2wAcDeM3wGj0tqgo4YkRS70aebETNZC_kXdmFnsnYJ1uzUm6on2_7FiI9KEh02guGp34D0sJL4Rsp-Iw3_neOrG7QqpcYG3iL79Ly1PYv7Eqd49LZQ7BucTShRZ5gySdxCN9mB9l-NKWXg/file?c_luid=88361d58' -o public/assets/bosses/boss-07-thorne.png
-          curl --fail --location --silent --show-error 'https://ucf6ee10cbc903de2ed45eb60206.dl.dropboxusercontent.com/cd/0/get/DHDWDYw-tCSYOfdjvaI8EMkrhxqiC-3_ZJxM4uXoirJX-rmYYEy_l8T7ByEN8sMmrW3oTCKE7uea1mKNG30jAwmGSbnfcCuCMzi5Bv94QszEmKsGh-7WlRWkRdujlYi4CDtzqB7ihxkZb6SZy5VAw_ZEEZ9YESGexw6YxPR2nD0Nmw/file?c_luid=88361d58' -o public/assets/bosses/boss-08-corvin.png
+          BASE='https://raw.githubusercontent.com/o-some/tulasisland/cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0/assets/creative'
+          curl --fail --location --silent --show-error "$BASE/world_coral_reef.webp" -o public/assets/worlds/world-coral-reef.webp
+          curl --fail --location --silent --show-error "$BASE/world_crystal_cove.webp" -o public/assets/worlds/world-crystal-cove.webp
+          curl --fail --location --silent --show-error "$BASE/world_desert_oasis.webp" -o public/assets/worlds/world-desert-oasis.webp
+          curl --fail --location --silent --show-error "$BASE/world_ice_peak.webp" -o public/assets/worlds/world-ice-peak.webp
+          curl --fail --location --silent --show-error 'https://www.dropbox.com/pri/get/%5BLinguaTurtle%5D/%5BEndbosse%5D/Tulas_Island_10_Original_Bosse_Einzeln_v2/%5BFreigestellt%5D/Level%205%20-%20Piratenbaron%20Vargas.png?_subject_uid=2152286515&w=AADdP5uK7N4mq2muIdutAiJklAEVf2s7JC1atXjoQuRODg' -o public/assets/bosses/boss-05-vargas.png
+          curl --fail --location --silent --show-error 'https://www.dropbox.com/pri/get/%5BLinguaTurtle%5D/%5BEndbosse%5D/Tulas_Island_10_Original_Bosse_Einzeln_v2/%5BFreigestellt%5D/Level%206%20-%20Kapit%C3%A4n%20Ironhook.png?_subject_uid=2152286515&w=AAC67dBRorlcDGZv62L_j40t-gYkSzVNlYeaxyuDX_qjOQ' -o public/assets/bosses/boss-06-ironhook.png
+          curl --fail --location --silent --show-error 'https://www.dropbox.com/pri/get/%5BLinguaTurtle%5D/%5BEndbosse%5D/Tulas_Island_10_Original_Bosse_Einzeln_v2/%5BFreigestellt%5D/Level%207%20-%20Admiral%20Thorne.png?_subject_uid=2152286515&w=AAD_kV1sgkVZS2UpzrhLI9ypYMt0t3hQcBdMU9KW4BGVOA' -o public/assets/bosses/boss-07-thorne.png
+          curl --fail --location --silent --show-error 'https://www.dropbox.com/pri/get/%5BLinguaTurtle%5D/%5BEndbosse%5D/Tulas_Island_10_Original_Bosse_Einzeln_v2/%5BFreigestellt%5D/Level%208%20-%20Kartenmeister%20Corvin.png?_subject_uid=2152286515&w=AADnFs54A0TT7nuVkRlEt4VmZHcmpWM2VXf58Qvyv0jkCQ' -o public/assets/bosses/boss-08-corvin.png
           test "$(stat -c%s public/assets/worlds/world-coral-reef.webp)" = 473394
           test "$(stat -c%s public/assets/worlds/world-crystal-cove.webp)" = 370588
           test "$(stat -c%s public/assets/worlds/world-desert-oasis.webp)" = 386840
