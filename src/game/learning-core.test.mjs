@@ -28,10 +28,11 @@ assert.equal(resolveStandardEncounter(crownFail, { tacticPower:4 }).reason, 'cro
 
 let learningFail = createEncounter(challenges);
 learningFail = evaluateChallenge(learningFail, 'q1', { answer:'apple' });
-learningFail = evaluateChallenge(learningFail, 'q2', { answer:'green' });
+learningFail = evaluateChallenge(learningFail, 'q2', { answer:'wrong' });
 learningFail = evaluateChallenge(learningFail, 'q3', { answer:'wrong' });
 learningFail = evaluateChallenge(learningFail, 'q4', { answer:'wrong' });
 learningFail = evaluateChallenge(learningFail, 'q5', { answer:'The flower grows.' });
+assert.equal(learningFail.solvedCount, 2);
 assert.equal(resolveStandardEncounter(learningFail, { tacticPower:4 }).reason, 'minimum-learning-not-met');
 
 console.log('learning core tests passed');
