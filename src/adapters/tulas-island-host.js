@@ -71,8 +71,12 @@ export function createTulasIslandHostAdapter(capabilities) {
 
     let walletHandledByEconomy = true;
     if (shells > 0) {
-      const economyResult = await creditGameplayShells(shells, `crown-${event.kind || 'learning'}`, eventId);
-      walletHandledByEconomy = economyResult !== null;
+      try {
+        const economyResult = await creditGameplayShells(shells, `crown-${event.kind || 'learning'}`, eventId);
+        walletHandledByEconomy = economyResult !== null;
+      } catch (error) {
+        return { ok: false, retryable: true, eventId, error: error?.message || 'host_reward_sync_failed' };
+      }
     }
 
     setState(draft => {
