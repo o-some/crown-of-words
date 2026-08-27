@@ -31,6 +31,8 @@ jobs:
         run: npm run check:assets
       - name: Pure campaign core
         run: npm run test:campaign
+      - name: Enemy AI director
+        run: npm run test:ai
       - name: Pure learning core
         run: npm run test:learning
       - name: Kai boss core
