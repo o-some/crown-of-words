@@ -24,7 +24,12 @@ main = replaceOnce(
   'fresh state overlays',
 );
 
-main = replaceOnce(main, "state = freshState();", "const restoredState = restoreSaveEnvelope(loadStandaloneSave());\nstate = restoredState ?? freshState();\nstate.paused = Boolean(state.paused);\nstate.helpOpen = Boolean(state.helpOpen);", 'restore state');
+main = replaceOnce(
+  main,
+  "}\n\nstate = freshState();\n\nfunction shell",
+  "}\n\nconst restoredState = restoreSaveEnvelope(loadStandaloneSave());\nstate = restoredState ?? freshState();\nstate.paused = Boolean(state.paused);\nstate.helpOpen = Boolean(state.helpOpen);\n\nfunction shell",
+  'restore state',
+);
 
 main = replaceOnce(
   main,
