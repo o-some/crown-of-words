@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Tula's Island – Crown of Words",
-  "branch": "branch-2-asset-registry",
+  "branch": "branch-5-garden-kai-vertical-slice",
   "sourceRepository": {
     "repository": "o-some/tulasisland",
     "commit": "cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0"
@@ -87,14 +87,15 @@
     {
       "id": "boss-01-pirat-kai",
       "kind": "boss",
-      "status": "source-verified-runtime-pending",
-      "runtimePath": "public/assets/bosses/boss-01-pirat-kai.png",
+      "status": "ready",
+      "runtimePath": "public/assets/bosses/pirat-kai.png",
       "dropboxPath": "/[LinguaTurtle]/[Endbosse]/Tulas_Island_10_Original_Bosse_Einzeln_v2/[Freigestellt]/Level 1 - Pirat Kai.png",
       "dropboxFileId": "id:tBVq8LNbZ_8AAAAAAAM3bQ",
       "dropboxContentHash": "f95cce54828690c9e29bdf3f8af60877f35254761c281251c0f9bbba44f85d45",
       "size": 655568,
+      "sha256": "fce8d03941551ae8f9f8387d183cdfad2e963300d0497f2f96d369e0d2c46fbe",
       "transparent": true,
-      "note": "Original source verified. Binary transfer intentionally deferred rather than persisting a short-lived Dropbox download token or substituting a non-original sprite. Must be resolved before the Garden/Kai vertical slice."
+      "note": "Original transparent Dropbox sprite imported byte-preserving. Dropbox content hash and normal SHA-256 are recorded separately."
     }
   ]
 }
